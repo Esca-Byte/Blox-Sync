@@ -33,6 +33,7 @@ yarn-error.log*
 *.zip
 *.7z
 *.exe
+roblox-bridge-app/
 dist/
 **/dist/
 out/
