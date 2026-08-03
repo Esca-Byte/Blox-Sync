@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Roblox Universal IDE Bridge - Desktop App</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Top Navigation Header -->
+    <header class="app-header">
+      <div class="brand">
+        <div class="brand-logo">
+          <svg class="icon-svg lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+          </svg>
+        </div>
+        <div class="brand-info">
+          <h1>Roblox Bridge <span class="author-tag">by <a href="https://github.com/Esca-Byte" target="_blank" class="author-link">Esca-Byte</a></span></h1>
+          <span class="version-badge">v2.1 Desktop</span>
+        </div>
+      </div>
+
+      <div class="header-controls">
+        <div class="project-selector-wrapper">
+          <label for="projectSelect" class="project-select-label">
+            <svg class="icon-svg sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+            </svg>
+            <span>Project:</span>
+          </label>
+          <div class="select-dropdown-container">
+            <select id="projectSelect" class="select-input">
+              <option value="" disabled selected>Loading projects...</option>
+            </select>
+            <svg class="icon-svg xs select-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </div>
+        </div>
+
+        <button id="btnNewProject" class="btn btn-primary">
+          <svg class="icon-svg sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          New Project
+        </button>
+
+        <div class="split-btn-group">
+          <button id="btnOpenIDE" class="btn btn-secondary btn-split-main" title="Launch project in default IDE">
+            <svg class="icon-svg sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="16 18 22 12 16 6"></polyline>
+              <polyline points="8 6 2 12 8 18"></polyline>
+            </svg>
+            <span id="txtOpenIDE">Open IDE</span>
+          </button>
+          <button id="btnSelectIDE" class="btn btn-secondary btn-split-arrow" title="Select Editor / IDE (VS Code, Cursor, Antigravity, Qoder, Custom)">
+            <svg class="icon-svg xs" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </button>
+        </div>
+
+        <button id="btnOpenFolder" class="btn btn-secondary" title="Open project folder in File Explorer">
+          <svg class="icon-svg sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+          </svg>
+          Open Folder
+        </button>
+
+        <button id="btnRescan" class="btn btn-icon-only" title="Rescan files">
+          <svg class="icon-svg sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="23 4 23 10 17 10"></polyline>
+            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Dashboard Body -->
+    <main class="app-main">
+      <!-- Status Stat Cards -->
+      <section class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon">
+            <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="6" y1="12" x2="10" y2="12"></line>
+              <line x1="8" y1="10" x2="8" y2="14"></line>
+              <circle cx="15" cy="13" r="1"></circle>
+              <circle cx="18" cy="11" r="1"></circle>
+              <rect x="2" y="6" width="20" height="12" rx="6"></rect>
+            </svg>
+          </div>
+          <div class="stat-details">
+            <span class="stat-label">Active Project</span>
+            <span id="statActiveProject" class="stat-value">Loading...</span>
+            <span id="statProjectPath" class="stat-subtext">...</span>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon">
+            <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4.9 19.1C1.7 15.9 1.7 10.8 4.9 7.5"></path>
+              <path d="M7.8 16.2c-1.6-1.6-1.6-4.1 0-5.7"></path>
+              <circle cx="12" cy="12" r="2"></circle>
+              <path d="M16.2 7.8c1.6 1.6 1.6 4.1 0 5.7"></path>
+              <path d="M19.1 4.9c3.2 3.2 3.2 8.3 0 11.6"></path>
+            </svg>
+          </div>
+          <div class="stat-details">
+            <span class="stat-label">Studio Connection</span>
+            <div class="status-indicator-wrapper">
+              <span id="studioPulse" class="pulse-dot offline"></span>
+              <span id="statStudioStatus" class="stat-value status-offline">Disconnected</span>
+            </div>
+            <span id="statHeartbeat" class="stat-subtext">Waiting for Studio connect</span>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon">
+            <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <path d="m10 13-2 2 2 2"></path>
+              <path d="m14 13 2 2-2 2"></path>
+            </svg>
+          </div>
+          <div class="stat-details">
+            <span class="stat-label">Tracked Scripts</span>
+            <span id="statTrackedCount" class="stat-value">0</span>
+            <span class="stat-subtext">Syncing via HTTP / WS</span>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon">
+            <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+              <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+              <line x1="6" y1="6" x2="6.01" y2="6"></line>
+              <line x1="6" y1="18" x2="6.01" y2="18"></line>
+            </svg>
+          </div>
+          <div class="stat-details">
+            <span class="stat-label">Server Endpoint</span>
+            <span class="stat-value">http://localhost:7777</span>
+            <span class="stat-subtext">Studio HTTP Service Target</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Work Area: Script Explorer & Live Console -->
+      <section class="workspace-grid">
+        <!-- Script Explorer Panel -->
+        <div class="panel script-explorer-panel">
+          <div class="panel-header">
+            <div class="panel-title">
+              <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+              </svg>
+              <span>Script Explorer</span>
+              <span id="scriptCountBadge" class="badge">0 files</span>
+            </div>
+            <div class="panel-actions">
+              <button id="btnRefreshFiles" class="btn btn-icon-only" title="Refresh files list">
+                <svg class="icon-svg sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="23 4 23 10 17 10"></polyline>
+                  <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="panel-body">
+            <div id="treeContainer" class="tree-container">
+              <div class="empty-state">Scanning project scripts...</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live Activity Console Panel -->
+        <div class="panel console-panel">
+          <div class="panel-header">
+            <div class="panel-title">
+              <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="4 17 10 11 4 5"></polyline>
+                <line x1="12" y1="19" x2="20" y2="19"></line>
+              </svg>
+              <span>Live Studio Log & Console</span>
+              <span id="consoleStatusPill" class="badge badge-success">WS Connected</span>
+            </div>
+            <div class="panel-actions">
+              <button id="btnClearConsole" class="btn btn-sm btn-ghost">Clear Console</button>
+            </div>
+          </div>
+
+          <div class="panel-body">
+            <div id="consoleLog" class="console-log">
+              <!-- Log entries appended dynamically -->
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Create Project Modal -->
+  <div id="modalCreateProject" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Create New Roblox Project</h3>
+        <button id="btnCloseModal" class="close-btn" title="Close (Esc)">&times;</button>
+      </div>
+      <div class="modal-body">
+        <label for="inputProjectName">Project Name:</label>
+        <input type="text" id="inputProjectName" class="text-input" placeholder="e.g. MyAwesomeRobloxGame" autofocus>
+        <p class="input-hint">Will be created in your default Documents/RobloxProjects directory with starter template scripts.</p>
+      </div>
+      <div class="modal-footer">
+        <button id="btnCancelModal" class="btn btn-secondary">Cancel</button>
+        <button id="btnSubmitCreateProject" class="btn btn-primary">Create Project</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Choose IDE / Editor Modal -->
+  <div id="modalSelectIDE" class="modal-overlay hidden">
+    <div class="modal-card modal-md">
+      <div class="modal-header">
+        <h3>Launch Code Editor / IDE</h3>
+        <button id="btnCloseIDEModal" class="close-btn" title="Close (Esc)">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="ide-modal-subtitle">Choose which IDE to open your active project in:</p>
+        
+        <div class="ide-grid">
+          <!-- VS Code -->
+          <div class="ide-card" data-ide="vscode">
+            <div class="ide-card-icon vscode-theme">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.15 2.587L18.21.21a1.494 1.494 0 0 0-1.705.29l-9.46 8.63-4.12-3.128a.999.999 0 0 0-1.276.057L.327 7.234a1 1 0 0 0-.033 1.465l3.5 3.3-3.5 3.3a1 1 0 0 0 .033 1.465l1.322 1.175a1 1 0 0 0 1.276.057l4.12-3.128 9.46 8.63a1.492 1.492 0 0 0 1.705.29l4.94-2.377A1.5 1.5 0 0 0 24 20.06V3.94a1.5 1.5 0 0 0-.85-1.353zM18 16.54l-6.17-5.54L18 5.46v11.08z"/></svg>
+            </div>
+            <div class="ide-card-details">
+              <div class="ide-title">VS Code</div>
+              <div class="ide-sub">Command: <code>code</code></div>
+            </div>
+            <button class="btn btn-sm btn-primary btn-launch-ide" data-ide="vscode">Launch</button>
+          </div>
+
+          <!-- Cursor -->
+          <div class="ide-card" data-ide="cursor">
+            <div class="ide-card-icon cursor-theme">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+            </div>
+            <div class="ide-card-details">
+              <div class="ide-title">Cursor AI</div>
+              <div class="ide-sub">Command: <code>cursor</code></div>
+            </div>
+            <button class="btn btn-sm btn-primary btn-launch-ide" data-ide="cursor">Launch</button>
+          </div>
+
+          <!-- Antigravity -->
+          <div class="ide-card" data-ide="antigravity">
+            <div class="ide-card-icon antigravity-theme">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+            </div>
+            <div class="ide-card-details">
+              <div class="ide-title">Antigravity</div>
+              <div class="ide-sub">Command: <code>antigravity</code></div>
+            </div>
+            <button class="btn btn-sm btn-primary btn-launch-ide" data-ide="antigravity">Launch</button>
+          </div>
+
+          <!-- Qoder -->
+          <div class="ide-card" data-ide="qoder">
+            <div class="ide-card-icon qoder-theme">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
+            </div>
+            <div class="ide-card-details">
+              <div class="ide-title">Qoder Studio</div>
+              <div class="ide-sub">Command: <code>qoder</code></div>
+            </div>
+            <button class="btn btn-sm btn-primary btn-launch-ide" data-ide="qoder">Launch</button>
+          </div>
+        </div>
+
+        <!-- Custom IDE Section -->
+        <div class="custom-ide-box">
+          <div class="custom-ide-header">
+            <svg class="icon-svg sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            <span>Other / Custom Editor</span>
+          </div>
+          <p class="custom-ide-desc">Enter a custom CLI command (e.g. <code>subl</code>, <code>vscodium</code>, <code>zed</code>, <code>nvim-qt</code>) or absolute path to your editor executable:</p>
+          <div class="custom-input-row">
+            <input type="text" id="inputCustomIDE" class="text-input" placeholder="e.g. subl, vscodium, or C:\Program Files\...\editor.exe">
+            <button id="btnLaunchCustomIDE" class="btn btn-primary">Launch Custom</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <label class="checkbox-remember">
+          <input type="checkbox" id="chkSetDefaultIDE" checked>
+          Set as default editor for "Open IDE" button
+        </label>
+        <button id="btnCancelIDEModal" class="btn btn-secondary">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

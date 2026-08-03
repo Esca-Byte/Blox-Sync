@@ -1,0 +1,48 @@
+{
+  "name": "roblox-bridge-app",
+  "version": "2.1.0",
+  "description": "Standalone Native Desktop Application and Sync Engine for Roblox Universal IDE Bridge",
+  "main": "src/electron/main.js",
+  "scripts": {
+    "start": "electron .",
+    "server-only": "node src/server/appServer.js",
+    "build-exe": "electron-builder --win portable"
+  },
+  "keywords": [
+    "roblox",
+    "vscode",
+    "bridge",
+    "luau",
+    "rojo",
+    "electron",
+    "desktop-app"
+  ],
+  "author": "Esca-Byte",
+  "license": "MIT",
+  "dependencies": {
+    "chokidar": "^3.5.3",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "fs-extra": "^11.1.1",
+    "open": "^8.4.2",
+    "ws": "^8.13.0"
+  },
+  "devDependencies": {
+    "electron": "^28.3.3",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.escabyte.robloxbridgeapp",
+    "productName": "RobloxBridgeApp",
+    "win": {
+      "target": "portable"
+    },
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "src/**/*",
+      "package.json"
+    ]
+  }
+}

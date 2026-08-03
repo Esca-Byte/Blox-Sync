@@ -1,0 +1,30 @@
+{
+  "name": "roblox-bridge-server",
+  "version": "2.0.0",
+  "description": "IDE-agnostic bridge server for syncing Roblox Studio with any IDE/editor",
+  "main": "src/server.js",
+  "bin": {
+    "roblox-bridge": "src/cli.js"
+  },
+  "scripts": {
+    "start": "node src/server.js",
+    "cli": "node src/cli.js"
+  },
+  "keywords": [
+    "roblox",
+    "rojo",
+    "bridge",
+    "luau",
+    "ide-agnostic",
+    "sync"
+  ],
+  "author": "Esca-Byte",
+  "license": "MIT",
+  "dependencies": {
+    "chokidar": "^3.5.3",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "fs-extra": "^11.1.1",
+    "ws": "^8.13.0"
+  }
+}
