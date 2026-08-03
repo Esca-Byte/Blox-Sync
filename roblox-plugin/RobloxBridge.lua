@@ -105,7 +105,11 @@ local function resolveParent(robloxHierarchy)
         local partName = parts[i]
         local child = current:FindFirstChild(partName)
         if not child then
-            child = Instance.new("Folder")
+            if current == game:GetService("StarterGui") or string.find(partName, "Gui") or string.find(partName, "Screen") or string.find(partName, "UI") then
+                child = Instance.new("ScreenGui")
+            else
+                child = Instance.new("Folder")
+            end
             child.Name = partName
             child.Parent = current
         end
@@ -120,16 +124,30 @@ local function applyScriptChange(changeData)
     local scriptInfo = changeData.scriptInfo
     if not scriptInfo then return end
 
-    local parent = resolveParent(scriptInfo.robloxHierarchy)
     local scriptName = scriptInfo.scriptName
     local scriptType = scriptInfo.scriptType or "ModuleScript"
 
+    -- Ensure robloxHierarchy is the parent path, not full path
+    local robloxHierarchy = scriptInfo.robloxHierarchy
+    if not robloxHierarchy or robloxHierarchy == "" or robloxHierarchy == scriptInfo.fullRobloxPath then
+        if scriptInfo.fullRobloxPath then
+            local parts = string.split(scriptInfo.fullRobloxPath, ".")
+            if #parts > 1 then
+                table.remove(parts, #parts)
+                robloxHierarchy = table.concat(parts, ".")
+            else
+                robloxHierarchy = parts[1]
+            end
+        end
+    end
+
+    local parent = resolveParent(robloxHierarchy)
     local existingScript = parent:FindFirstChild(scriptName)
 
     if changeData.action == "delete" then
         if existingScript then
             existingScript:Destroy()
-            log("Deleted script: " .. scriptInfo.fullRobloxPath, "INFO")
+            log("Deleted script: " .. (scriptInfo.fullRobloxPath or scriptName), "INFO")
         end
         return
     end
@@ -144,7 +162,7 @@ local function applyScriptChange(changeData)
 
     if existingScript:IsA("LuaSourceContainer") then
         existingScript.Source = changeData.content or ""
-        log("Updated " .. scriptType .. ": " .. scriptInfo.fullRobloxPath, "INFO")
+        log("Updated " .. scriptType .. ": " .. (scriptInfo.fullRobloxPath or (robloxHierarchy .. "." .. scriptName)), "INFO")
     end
 end
 
@@ -347,6 +365,23 @@ local function exportGameScripts()
                     scriptType = child.ClassName,
                     content = child.Source
                 })
+            elseif (child:IsA("ScreenGui") or child:IsA("LayerCollector")) and child.Parent:IsA("StarterGui") then
+                local hasScript = false
+                for _, desc in ipairs(child:GetDescendants()) do
+                    if desc:IsA("LuaSourceContainer") then
+                        hasScript = true
+                        break
+                    end
+                end
+                if not hasScript then
+                    local robloxHierarchy = child:GetFullName()
+                    table.insert(scriptsToExport, {
+                        fullRobloxPath = robloxHierarchy .. "." .. child.Name .. "Controller",
+                        scriptName = child.Name .. "Controller",
+                        scriptType = "LocalScript",
+                        content = "-- Client script for ScreenGui: " .. child.Name .. "\nlocal Players = game:GetService(\"Players\")\nlocal localPlayer = Players.LocalPlayer\n\nprint(\"" .. child.Name .. " UI initialized for:\", localPlayer.Name)\n"
+                    })
+                end
             end
             scanInstance(child)
         end
@@ -354,12 +389,16 @@ local function exportGameScripts()
 
     scanInstance(game:GetService("ReplicatedStorage"))
     scanInstance(game:GetService("ServerScriptService"))
+    scanInstance(game:GetService("ServerStorage"))
+    scanInstance(game:GetService("StarterGui"))
+    scanInstance(game:GetService("StarterPack"))
+    scanInstance(game:GetService("Workspace"))
     scanInstance(game:GetService("StarterPlayer"))
 
-    log("Found " .. #scriptsToExport .. " scripts to export. Sending to server...", "INFO")
+    log("Found " .. #scriptsToExport .. " script(s) to export. Sending to server...", "INFO")
     local success, response = httpRequest("/sync-from-studio", "POST", { scripts = scriptsToExport })
     if success then
-        log("Successfully exported " .. tostring(response.count) .. " scripts to IDE project!", "INFO")
+        log("Successfully exported " .. tostring(response.count) .. " script(s) to IDE project!", "INFO")
     else
         log("Failed to export scripts: " .. tostring(response), "ERROR")
     end

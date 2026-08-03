@@ -91,15 +91,31 @@ class RobloxBridgeServer {
         "ServerScriptService": {
           "$path": "src/ServerScriptService"
         },
+        "ServerStorage": {
+          "$path": "src/ServerStorage"
+        },
+        "StarterGui": {
+          "$path": "src/StarterGui"
+        },
+        "StarterPack": {
+          "$path": "src/StarterPack"
+        },
+        "Workspace": {
+          "$path": "src/Workspace"
+        },
         "StarterPlayer": {
           "StarterPlayerScripts": {
             "$path": "src/StarterPlayer/StarterPlayerScripts"
+          },
+          "StarterCharacterScripts": {
+            "$path": "src/StarterPlayer/StarterCharacterScripts"
           }
         }
       }
     };
 
     await fs.writeJson(path.join(projDir, 'default.project.json'), defaultProjectJson, { spaces: 2 });
+
     await fs.outputFile(
       path.join(projDir, 'src', 'ReplicatedStorage', 'SharedModule.luau'),
       `local SharedModule = {}\n\nfunction SharedModule.init()\n    print("SharedModule initialized from external IDE!")\nend\n\nreturn SharedModule\n`
@@ -109,15 +125,35 @@ class RobloxBridgeServer {
       `local ReplicatedStorage = game:GetService("ReplicatedStorage")\nlocal SharedModule = require(ReplicatedStorage:WaitForChild("SharedModule"))\n\nprint("Server script running!")\nSharedModule.init()\n`
     );
     await fs.outputFile(
+      path.join(projDir, 'src', 'ServerStorage', 'ServerStorageModule.luau'),
+      `local ServerStorageModule = {}\n\nfunction ServerStorageModule.run()\n    print("ServerStorage Module loaded.")\nend\n\nreturn ServerStorageModule\n`
+    );
+    await fs.outputFile(
+      path.join(projDir, 'src', 'StarterGui', 'MainUI.client.luau'),
+      `local Players = game:GetService("Players")\nlocal localPlayer = Players.LocalPlayer\n\nprint("MainUI client script initialized for:", localPlayer.Name)\n`
+    );
+    await fs.outputFile(
+      path.join(projDir, 'src', 'StarterPack', 'ItemScript.client.luau'),
+      `print("StarterPack item script initialized!")\n`
+    );
+    await fs.outputFile(
+      path.join(projDir, 'src', 'Workspace', 'WorkspaceController.server.luau'),
+      `print("Workspace server controller running!")\n`
+    );
+    await fs.outputFile(
       path.join(projDir, 'src', 'StarterPlayer', 'StarterPlayerScripts', 'ClientMain.client.luau'),
       `print("Client main script running!")\n`
+    );
+    await fs.outputFile(
+      path.join(projDir, 'src', 'StarterPlayer', 'StarterCharacterScripts', 'CharacterController.client.luau'),
+      `print("Character controller script initialized!")\n`
     );
     await fs.outputFile(
       path.join(projDir, '.robloxignore'),
       `*.tmp\nnode_modules/\n.git/\n`
     );
 
-    console.log(`[ProjectManager] Created project template: ${projectName} at ${projDir}`);
+    console.log(`[ProjectManager] Created project template with default Roblox files: ${projectName} at ${projDir}`);
     return projDir;
   }
 
@@ -426,10 +462,11 @@ class RobloxBridgeServer {
           this.writeGuard.set(relPath, Date.now());
           await fs.outputFile(absPath, s.content, 'utf-8');
 
-          const scriptInfo = {
+          const scriptInfo = this.rojoParser.getScriptInfo(relPath, this.projectConfig.mappings) || {
             scriptName: s.scriptName || path.basename(relPath).split('.')[0],
             scriptType: s.scriptType,
             fullRobloxPath: s.fullRobloxPath,
+            robloxHierarchy: s.fullRobloxPath ? s.fullRobloxPath.split('.').slice(0, -1).join('.') : 'ReplicatedStorage',
             relPath
           };
 
