@@ -4,7 +4,7 @@
   <img src="https://img.shields.io/badge/Roblox-Studio-E2231A?style=for-the-badge&logo=roblox&logoColor=white" alt="Roblox">
   <img src="https://img.shields.io/badge/VS_Code-Extension-007ACC?style=for-the-badge&logo=visualstudiocode&logoColor=white" alt="VS Code">
   <img src="https://img.shields.io/badge/language-Lua%2FLuau-2C2D72?style=for-the-badge&logo=lua&logoColor=white" alt="Lua">
-  <img src="https://img.shields.io/github/license/Esca-Byte/roblox-vscode-bridge?style=for-the-badge" alt="License">
+  <img src="https://img.shields.io/github/license/Esca-Byte/Roblox-Bridge?style=for-the-badge" alt="License">
 </p>
 
 <h1 align="center">🔗 Roblox VS Code Bridge</h1>
