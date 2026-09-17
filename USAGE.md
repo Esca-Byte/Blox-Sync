@@ -188,6 +188,17 @@ The **Roblox MCP Server** allows AI assistants (such as **Antigravity**, **Curso
 
 ---
 
+### 🧠 Built-In AI Skills Package (`.agents/skills/`)
+Similar to the official Roblox Assistant Skills (`rbx-debug`, `rbx-perf-profiling`, `textured-gui`), our bridge repository includes native, ready-to-use AI Agent skills:
+- **`roblox-debug`**: Autonomous debugging runbook. Directs the AI to capture error logs from Studio, translate hierarchy paths to local files, and verify fixes with playtests.
+- **`roblox-unit-test`**: Generates and executes automated Luau test suites inside Studio using TestEZ/lightweight assertion harnesses.
+- **`roblox-perf-profiling`**: High-precision `os.clock()` benchmarking, spatial query performance profiling, and memory auditing.
+- **`roblox-ui-builder`**: Code-first responsive `ScreenGui` generation with smooth tween animations and modern glassmorphic styling.
+- **`roblox-scene-inspector`**: 3D world audits, unanchored part detection, collision checks, and StreamingEnabled spawn audits.
+
+
+---
+
 ## 🧪 Step-by-Step Manual Testing Guide
 
 Follow these simple manual steps to test each feature in your own workspace:
