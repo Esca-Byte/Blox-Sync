@@ -1,318 +1,133 @@
 <p align="center">
-  <img src="https://img.shields.io/badge/version-1.3.0-blue?style=for-the-badge" alt="Version">
+  <img src="https://img.shields.io/badge/version-2.2.0-blue?style=for-the-badge" alt="Version">
   <img src="https://img.shields.io/badge/platform-Windows-0078D6?style=for-the-badge&logo=windows" alt="Platform">
   <img src="https://img.shields.io/badge/Roblox-Studio-E2231A?style=for-the-badge&logo=roblox&logoColor=white" alt="Roblox">
-  <img src="https://img.shields.io/badge/VS_Code-Extension-007ACC?style=for-the-badge&logo=visualstudiocode&logoColor=white" alt="VS Code">
-  <img src="https://img.shields.io/badge/language-Lua%2FLuau-2C2D72?style=for-the-badge&logo=lua&logoColor=white" alt="Lua">
+  <img src="https://img.shields.io/badge/IDEs-Antigravity%20|%20Cursor%20|%20VS%20Code%20|%20JetBrains-007ACC?style=for-the-badge" alt="IDEs">
+  <img src="https://img.shields.io/badge/language-Lua%20|%20Luau%20|%20TypeScript-2C2D72?style=for-the-badge&logo=lua&logoColor=white" alt="Languages">
+  <img src="https://img.shields.io/badge/MCP-Protocol%20Enabled-8A2BE2?style=for-the-badge" alt="MCP">
   <img src="https://img.shields.io/github/license/Esca-Byte/Roblox-Bridge?style=for-the-badge" alt="License">
 </p>
 
-<h1 align="center">🔗 Roblox VS Code Bridge</h1>
+<h1 align="center">🔗 Roblox Universal IDE Bridge & AI Agent Platform</h1>
 
 <p align="center">
-  <strong>Real-time two-way sync between VS Code and Roblox Studio</strong><br>
-  Developed by <a href="https://github.com/Esca-Byte"><strong>Esca-Byte</strong></a> • Write Lua/Luau in your favorite editor.
+  <strong>Real-time two-way sync, native desktop dashboard, and autonomous AI Agent integration (MCP) between any external editor and Roblox Studio.</strong><br>
+  Developed by <a href="https://github.com/Esca-Byte"><strong>Esca-Byte</strong></a> • Code in Antigravity, Cursor, VS Code, JetBrains, or Neovim.
 </p>
 
 <p align="center">
   <a href="#-quick-start">Quick Start</a> •
   <a href="#-features">Features</a> •
-  <a href="#-how-it-works">How It Works</a> •
-  <a href="#%EF%B8%8F-configuration">Configuration</a> •
-  <a href="#-troubleshooting">Troubleshooting</a> •
-  <a href="#-contributing">Contributing</a>
+  <a href="USAGE.md">Complete Usage Guide</a> •
+  <a href="#-ai-agent-integration-mcp-server">AI Agent (MCP)</a> •
+  <a href="#-troubleshooting">Troubleshooting</a>
 </p>
 
 ---
 
-## 🎯 Why This Exists
+## 🎯 What is the Universal Bridge?
 
-Roblox Studio's built-in script editor lacks the power of a real code editor. This bridge lets you:
+The built-in Roblox Studio script editor lacks the speed, AI intelligence, and extension ecosystems of professional developer environments. The **Roblox Universal IDE Bridge** gives you the best of both worlds:
 
-- ✏️ **Write code in VS Code** with full IntelliSense, extensions, themes, and Git
-- ⚡ **See changes in Studio instantly** — no manual copy-paste
-- 📤 **Export your entire game's scripts** to VS Code in one click
-- 🔄 **Two-way sync** — edit in either direction
-- 📁 **Rojo-compatible file structure** — `init.lua`, `.server.lua`, `.client.lua`
+- ⚡ **Direct Real-Time Two-Way Sync**: Edit Lua/Luau in your favorite editor; saves update inside Studio in milliseconds.
+- 🖥️ **Native Desktop Dashboard (`RobloxBridgeApp.exe`)**: Control center with project switching, live activity logs, Luau script runner, and Game Explorer.
+- 🤖 **AI Agent Autonomous Control (MCP Server)**: Connects with AI assistants (**Antigravity**, **Cursor**, **Claude Desktop**) via the Model Context Protocol. AI agents can execute tests, inspect game hierarchies, and read runtime errors autonomously!
+- 📦 **.rbxlx Place File Export**: Download complete, hierarchical XML place files that open directly in Roblox Studio without needing any plugin.
+- 🛡️ **Smart Conflict Diff / Merge**: Side-by-side split visual diff modal that prevents data loss if Studio and your IDE edit the same script at once.
+- 🏷️ **GUID Tracking & Safe Renames (`.meta.json`)**: Persistent UUID sidecars ensure renaming or moving files won't destroy script instances or break `require()` chains.
+- 📦 **Wally Package Manager**: One-click package installer inside the app for libraries like Knit, Signal, and Promise.
+- ⚡ **TypeScript / roblox-ts**: Watches `.ts` files, auto-compiles with `rbxtsc`, and tracks build statuses.
 
 ---
 
 ## 🚀 Quick Start
 
-### Prerequisites
+### 1. Installation (One-Click)
+Run `install.bat` in the repository root. It automatically:
+- Installs `RobloxBridge.lua` to `%LOCALAPPDATA%\Roblox\Plugins\`
+- Sets up your default projects directory (`Documents\RobloxProjects`)
+- Installs all dependencies for the server, desktop app, and MCP agent layer.
 
-- [VS Code](https://code.visualstudio.com/) (v1.74+)
-- [Roblox Studio](https://www.roblox.com/create)
-- [Node.js](https://nodejs.org/) (v16+)
-- Windows OS
+### 2. Enable HTTP in Studio
+1. Open your game in **Roblox Studio**.
+2. **Home** → **Game Settings** → **Security** → Enable **"Allow HTTP Requests"**.
+3. Save.
 
-### Installation
+### 3. Launch & Connect
+1. Double-click `RobloxBridgeApp.exe` (in `roblox-bridge-app/dist/`) or run `start-bridge.bat`.
+2. In Roblox Studio, click **Plugins** → **Roblox Universal Bridge** → **Status Widget** → **Connect**.
+3. Edit code in your IDE — changes reflect instantly in Studio!
 
-```bash
-# 1. Clone the repo
-git clone https://github.com/Esca-Byte/Roblox-Bridge.git
-cd Roblox-Bridge
-
-# 2. Run the installer (copies plugin + installs VS Code extension)
-install.bat
-```
-
-That's it! The installer automatically:
-- Copies the Roblox Studio plugin to `%LOCALAPPDATA%\Roblox\Plugins\`
-- Packages and installs the VS Code extension
-
-### First Sync (3 steps)
-
-1. **VS Code** → `Ctrl+Shift+P` → `Roblox Bridge: Start Server`
-2. **Roblox Studio** → Enable **HTTP Requests** in Game Settings → Security
-3. **Studio toolbar** → Click **Connect**
-
-Your scripts are now syncing! ✅
+For detailed step-by-step testing instructions, read the **[Complete Usage Guide (USAGE.md)](USAGE.md)**.
 
 ---
 
-## ✨ Features
+## ✨ Features Breakdown
 
-### Core
-
-| Feature | Description |
-|---------|-------------|
-| **Live Sync** | File changes in VS Code are instantly reflected in Studio |
-| **Export Scripts** | One-click export of all Studio scripts to VS Code |
-| **Upload Selected** | Push specific scripts back from Studio to disk |
-| **Conflict Detection** | Warns you when a file was modified in both places |
-| **init.lua Support** | Rojo-compatible `init.lua`, `init.server.lua`, `init.client.lua` |
-| **Two-Way Delete** | Scripts deleted in Studio are removed from disk (opt-in) |
-| **Auto-Export** | Automatically rescan workspace when Studio connects |
-| **.robloxignore** | Exclude files from syncing (gitignore-style syntax) |
-
-### VS Code Extension
-
-| Feature | Description |
-|---------|-------------|
-| **Output Channel** | Dedicated "Roblox Bridge" log panel for debugging |
-| **TreeView Panel** | Sidebar showing synced scripts organized by Roblox service |
-| **New Script Templates** | Right-click → create Script / LocalScript / ModuleScript with boilerplate |
-| **Smart Status Bar** | Live file count, last sync time, connection animation |
-| **Write-Guard** | Prevents file watcher loops when the bridge writes files |
-
-### Roblox Studio Plugin
-
-| Feature | Description |
-|---------|-------------|
-| **Status Widget** | Animated panel with pulse indicator, stat cards, and color-coded log |
-| **Progress Bar** | Visual feedback during sync operations |
-| **Auto-Reconnect** | Retries connection automatically on network hiccups |
-| **Uptime Counter** | Shows how long you've been connected |
+| Feature | Category | Description |
+|---|---|---|
+| **Real-time Live Sync** | Core Sync | Saves in your IDE instantly push to Studio via local WebSocket/HTTP. |
+| **.rbxlx Place Export** | Portability | One-click export to standard Roblox XML place format with nested folder reconstruction. |
+| **Smart Conflict Diff** | Safety | Visual side-by-side diff resolution when Studio and the IDE modify the same file within 8s. |
+| **GUID Rename Tracking** | Integrity | `.meta.json` sidecars ensure renames update in-place without breaking `require()` references. |
+| **Wally Package Manager** | Packages | Detects `wally.toml` and installs dependencies directly from the dashboard. |
+| **TypeScript (roblox-ts)** | Toolchain | Watches `.ts` files and compiles via `rbxtsc` with status badge & manual build triggers. |
+| **Luau Execution Engine** | Testing | In-app runner executing arbitrary Luau directly inside Studio with live timing & return values. |
+| **DataModel Game Explorer** | Inspection | Live hierarchy tree snapshot streamed from Studio to the dashboard. |
+| **Studio Log Streaming** | Console | Studio `print`, `warn`, and `error` outputs streamed live to your desktop console. |
+| **Roblox MCP Server** | AI Agents | Standard Model Context Protocol server giving AI agents direct tool access in Studio. |
 
 ---
 
-## ⚙️ How It Works
+## 🤖 AI Agent Integration (MCP Server)
 
-```
-VS Code                    localhost:7777              Roblox Studio
-┌──────────────────┐       ┌──────────────┐           ┌──────────────────┐
-│  .lua/.luau files│──────▸│  HTTP Bridge │◂──────────│  Script instances │
-│  (file watcher)  │       │  (Node.js)   │           │  (Lua plugin)    │
-│                  │◂──────│              │──────────▸│                  │
-│  VS Code ext.    │ write │  extension.js│  poll     │  RobloxBridge.lua│
-└──────────────────┘       └──────────────┘           └──────────────────┘
-```
+The bridge includes a built-in **Model Context Protocol (MCP)** server (`roblox-mcp-server`), allowing AI assistants like **Antigravity**, **Cursor**, or **Claude Desktop** to autonomously interact with Roblox Studio:
 
-1. The **VS Code extension** starts an HTTP server on `localhost:7777`
-2. It watches your `src/` folder for `.lua` / `.luau` file changes
-3. The **Studio plugin** polls the server every 2 seconds for updates
-4. Changed files are applied as Script instances in the correct location
-5. You can also push scripts back from Studio → VS Code via `POST /write`
+- `roblox_start_playtest` — AI starts Play Solo or Server + Player playtests directly.
+- `roblox_stop_playtest` — AI stops playtests and returns Studio to edit mode.
+- `roblox_lint_script` — AI statically checks Luau scripts for syntax errors before syncing.
+- `roblox_run_luau` — AI runs test scripts directly inside Studio and inspects results.
+- `roblox_read_studio_logs` — AI reads Studio's `print`/`warn`/`error` stream to debug runtime bugs.
+- `roblox_get_datamodel_tree` — AI inspects game hierarchy (parts, models, folders, Remotes).
+- `roblox_write_script` — AI writes or updates scripts with hot-reloading into Studio.
+- `roblox_launch_studio` — AI launches Roblox Studio on demand.
+- `roblox_get_status` — AI checks connection state and active project stats.
+
+See [mcp_config.example.json](mcp_config.example.json) and [roblox-mcp-server/README.md](roblox-mcp-server/README.md) for configuration.
 
 ---
 
-## 📁 File Structure
+## 📁 Rojo-Compatible File Conventions
+
+The bridge organizes disk files into Roblox hierarchy:
 
 ```
-my-game/
-├── src/
-│   ├── ServerScriptService/
-│   │   ├── GameManager.server.lua          → Script
-│   │   └── DataStore/
-│   │       └── init.server.lua             → Script (named "DataStore")
-│   ├── ReplicatedStorage/
-│   │   ├── Shared/
-│   │   │   ├── init.lua                    → ModuleScript (named "Shared")
-│   │   │   └── Types.lua                   → ModuleScript
-│   │   └── RemoteEvents.lua                → ModuleScript
-│   └── StarterPlayer/
-│       └── StarterPlayerScripts/
-│           └── MainGui.client.lua          → LocalScript
-├── .robloxignore                           → Exclude patterns
-└── README.md
+Documents\RobloxProjects\<ProjectName>\
+├── default.project.json
+├── .robloxignore
+├── wally.toml                       # (Optional) Wally dependencies
+├── tsconfig.json                    # (Optional) TypeScript configuration
+└── src/
+    ├── ReplicatedStorage/          → game.ReplicatedStorage
+    │   ├── SharedModule.luau       → ModuleScript
+    │   └── SharedModule.luau.meta.json
+    ├── ServerScriptService/        → game.ServerScriptService
+    │   └── GameManager.server.luau → Script (Server)
+    └── StarterPlayer/
+        └── StarterPlayerScripts/   → game.StarterPlayer.StarterPlayerScripts
+            └── ClientMain.client.luau → LocalScript (Client)
 ```
-
-**Naming conventions** (Rojo-compatible):
-| Pattern | Script Type |
-|---------|-------------|
-| `*.server.lua` / `*.server.luau` | Script |
-| `*.client.lua` / `*.client.luau` | LocalScript |
-| `*.lua` / `*.luau` | ModuleScript |
-| `init.lua` / `init.server.lua` / `init.client.lua` | Maps to parent folder name |
-
----
-
-## 🛠️ Configuration
-
-All settings are in VS Code under **Settings → Extensions → Roblox Bridge**:
-
-| Setting | Default | Description |
-|---------|---------|-------------|
-| `robloxBridge.port` | `7777` | HTTP server port |
-| `robloxBridge.sourcePath` | `"src"` | Folder to watch for Lua files |
-| `robloxBridge.autoStart` | `false` | Start bridge when workspace opens |
-| `robloxBridge.pollInterval` | `2` | Seconds between Studio polls |
-| `robloxBridge.preferLuau` | `false` | Use `.luau` instead of `.lua` |
-| `robloxBridge.autoExportOnConnect` | `false` | Rescan files when Studio connects |
-| `robloxBridge.twoWayDelete` | `false` | Allow Studio to delete files on disk |
-| `robloxBridge.showConnectionNotifications` | `true` | Toast on connect/disconnect |
-| `robloxBridge.heartbeatTimeoutSeconds` | `15` | Seconds before disconnect detection |
-
----
-
-## 📋 Commands
-
-### VS Code (`Ctrl+Shift+P`)
-
-| Command | Description |
-|---------|-------------|
-| `Roblox Bridge: Start Server` | Start the HTTP bridge server |
-| `Roblox Bridge: Stop Server` | Stop the server |
-| `Roblox Bridge: Rescan Workspace Files` | Force rescan all Lua files |
-| `Roblox Bridge: Show Connection Status` | Display connection info |
-| `Roblox Bridge: New Script` | Create a new Roblox script from template |
-| `Roblox Bridge: Show Output Log` | Open the output channel |
-
-### Roblox Studio Toolbar
-
-| Button | Description |
-|--------|-------------|
-| **Connect** | Start/stop live polling |
-| **Export →** | Export all game scripts to VS Code |
-| **Pull All** | Pull every file from VS Code |
-| **Upload** | Push selected script(s) to VS Code |
-| **Status** | Toggle the status panel |
 
 ---
 
 ## 🔧 Troubleshooting
 
-<details>
-<summary><strong>Studio says "Server unreachable"</strong></summary>
-
-Make sure the bridge server is running in VS Code first:  
-`Ctrl+Shift+P` → `Roblox Bridge: Start Server`
-</details>
-
-<details>
-<summary><strong>Port 7777 is already in use</strong></summary>
-
-Change `robloxBridge.port` in VS Code settings to another port (e.g., `7778`).  
-Also update `CONFIG.port` in `RobloxBridge.lua` to match.
-</details>
-
-<details>
-<summary><strong>"Allow HTTP Requests" error in Studio</strong></summary>
-
-Go to **Game Settings → Security** and enable **Allow HTTP Requests**.
-</details>
-
-<details>
-<summary><strong>Scripts not appearing in Studio</strong></summary>
-
-- Verify a `src/` folder exists in your workspace root
-- Ensure files have `.lua` or `.luau` extensions
-- Try clicking **Pull All** in the Studio toolbar
-</details>
-
-<details>
-<summary><strong>Extension not found after install</strong></summary>
-
-Reload VS Code: `Ctrl+Shift+P` → `Developer: Reload Window`  
-If still missing, re-run `install.bat`.
-</details>
-
-<details>
-<summary><strong>Two-way delete not working</strong></summary>
-
-It's disabled by default for safety.  
-Enable it: VS Code Settings → `robloxBridge.twoWayDelete` → `true`
-</details>
-
----
-
-## 🌐 HTTP API Reference
-
-For advanced users and custom tooling:
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/` | Health check |
-| `GET` | `/status` | Server stats & connection state |
-| `GET` | `/config` | Current settings (for Studio plugin) |
-| `GET` | `/files` | List all tracked files |
-| `GET` | `/changes?since=<ms>` | Get changes since timestamp |
-| `POST` | `/heartbeat` | Studio heartbeat |
-| `POST` | `/write` | Write a file from Studio to disk |
-| `POST` | `/delete-from-studio` | Delete a file on disk |
-| `POST` | `/sync-from-studio` | Bulk export from Studio |
-
----
-
-## 📦 Project Structure
-
-```
-roblox-vscode-bridge/
-├── vscode-extension/
-│   ├── extension.js          # VS Code extension (HTTP server + file watcher)
-│   └── package.json          # Extension manifest
-├── roblox-plugin/
-│   └── RobloxBridge.lua      # Roblox Studio plugin
-├── install.bat               # One-click installer
-└── README.md
-```
-
----
-
-## 🤝 Contributing
-
-Contributions are welcome! Here's how:
-
-1. **Fork** the repository
-2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
-3. **Commit** your changes (`git commit -m 'Add amazing feature'`)
-4. **Push** to the branch (`git push origin feature/amazing-feature`)
-5. **Open** a Pull Request
-
-### Ideas for Contributions
-
-- 🐧 Linux / macOS support
-- 🔌 Rojo project file (`*.project.json`) compatibility
-- 📊 Script analytics dashboard
-- 🧪 Automated testing
-- 🎨 Custom themes for the Studio widget
+- **Studio says "Connection failed" or "Offline"**: Ensure the bridge server/app is running on port `7777` and **Allow HTTP Requests** is enabled in Studio Game Settings.
+- **"Cannot start server script (lacking capability RunServerScript)"**: You have a `.server.luau` script inside a client container (e.g. `StarterPlayerScripts` or character models). Rename it to `.client.luau`.
+- **Port 7777 Busy**: If another app uses 7777, you can change the port in `appServer.js` and `RobloxBridge.lua`.
 
 ---
 
 ## 📄 License
 
 This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
-
----
-
-## ⭐ Star This Repo
-
-If this tool helped your Roblox development workflow, please consider giving it a ⭐ on GitHub!
-
----
-
-<p align="center">
-  Made with ❤️ for the Roblox developer community
-</p>
-#

@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Roblox Universal IDE Bridge - Desktop App</title>
+  <meta name="description" content="Real-time Roblox Studio IDE Bridge — sync Luau scripts from any IDE to Roblox Studio instantly.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Top Navigation Header -->
+    <header class="app-header">
+      <div class="brand">
+        <div class="brand-logo">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+          </svg>
+        </div>
+        <div class="brand-info">
+          <h1>Roblox Bridge</h1>
+          <span class="version-badge">v2.2 Desktop</span>
+        </div>
+      </div>
+
+      <div class="header-controls">
+        <div class="project-selector-wrapper">
+          <!-- Project dropdown + inline action buttons -->
+          <div class="select-dropdown-container">
+            <select id="projectSelect" class="select-input">
+              <option value="" disabled selected>Loading projects...</option>
+            </select>
+            <svg class="icon-svg xs select-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </div>
+          <!-- Rename project button -->
+          <button id="btnRenameProject" class="btn btn-icon-only btn-ghost-sm" title="Rename active project">
+            <svg class="icon-svg xs" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+            </svg>
+          </button>
+          <!-- Delete project button -->
+          <button id="btnDeleteProject" class="btn btn-icon-only btn-danger-sm" title="Delete active project">
+            <svg class="icon-svg xs" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="3 6 5 6 21 6"></polyline>
+              <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
+              <path d="M10 11v6"></path><path d="M14 11v6"></path>
+              <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
+            </svg>
+          </button>
+        </div>
+
+        <button id="btnNewProject" class="btn btn-primary" title="Create New Roblox Project">
+          <svg class="icon-svg sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          <span>New</span>
+        </button>
+
+        <div class="split-btn-group">
+          <button id="btnOpenIDE" class="btn btn-secondary btn-split-main" title="Launch project in default IDE">
+            <svg class="icon-svg sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="16 18 22 12 16 6"></polyline>
+              <polyline points="8 6 2 12 8 18"></polyline>
+            </svg>
+            <span id="txtOpenIDE">Open Antigravity</span>
+          </button>
+          <button id="btnSelectIDE" class="btn btn-secondary btn-split-arrow" title="Select Editor / IDE">
+            <svg class="icon-svg xs" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Launch Roblox Studio -->
+        <button id="btnOpenStudio" class="btn btn-roblox" title="Launch Roblox Studio directly">
+          <svg class="icon-svg sm" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M18.5 3H5.5L2 19.5 15 23l7-14.5L18.5 3zm-6.2 12.3l-3.8-1 1-3.8 3.8 1-1 3.8z"/>
+          </svg>
+          <span>Studio</span>
+        </button>
+
+        <button id="btnOpenFolder" class="btn btn-secondary" title="Open project folder in File Explorer">
+          <svg class="icon-svg sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+          </svg>
+          Folder
+        </button>
+
+        <button id="btnRescan" class="btn btn-icon-only" title="Rescan files">
+          <svg class="icon-svg sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="23 4 23 10 17 10"></polyline>
+            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+          </svg>
+        </button>
+
+        <!-- Feature 1: Export .rbxlx -->
+        <button id="btnExportRbxlx" class="btn btn-secondary" title="Export project as .rbxlx Roblox place file">
+          <svg class="icon-svg sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          .rbxlx
+        </button>
+
+        <!-- Feature 6: Wally Install -->
+        <button id="btnWallyInstall" class="btn btn-secondary" title="Run wally install (Roblox package manager)">
+          <svg class="icon-svg sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"></path>
+            <circle cx="12" cy="12" r="2"></circle>
+          </svg>
+          Wally
+        </button>
+
+        <!-- Feature 7: TypeScript Compile -->
+        <button id="btnTsCompile" class="btn btn-secondary" title="Compile TypeScript via roblox-ts (rbxtsc)" style="display:none">
+          <svg class="icon-svg sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="16 18 22 12 16 6"></polyline>
+            <polyline points="8 6 2 12 8 18"></polyline>
+          </svg>
+          TS Build
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Dashboard Body -->
+    <main class="app-main">
+      <!-- Compact Status Bar Grid -->
+      <section class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon">
+            <svg class="icon-svg sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="6" y1="12" x2="10" y2="12"></line>
+              <line x1="8" y1="10" x2="8" y2="14"></line>
+              <circle cx="15" cy="13" r="1"></circle>
+              <circle cx="18" cy="11" r="1"></circle>
+              <rect x="2" y="6" width="20" height="12" rx="6"></rect>
+            </svg>
+          </div>
+          <div class="stat-details">
+            <span class="stat-label">Active Project</span>
+            <span id="statActiveProject" class="stat-value">Loading...</span>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon">
+            <svg class="icon-svg sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4.9 19.1C1.7 15.9 1.7 10.8 4.9 7.5"></path>
+              <path d="M7.8 16.2c-1.6-1.6-1.6-4.1 0-5.7"></path>
+              <circle cx="12" cy="12" r="2"></circle>
+              <path d="M16.2 7.8c1.6 1.6 1.6 4.1 0 5.7"></path>
+              <path d="M19.1 4.9c3.2 3.2 3.2 8.3 0 11.6"></path>
+            </svg>
+          </div>
+          <div class="stat-details">
+            <span class="stat-label">Studio Connection</span>
+            <div class="status-indicator-wrapper">
+              <span id="studioPulse" class="pulse-dot offline"></span>
+              <span id="statStudioStatus" class="stat-value status-offline">Disconnected</span>
+            </div>
+          </div>
+        </div>
+
+        <div id="statCardFiles" class="stat-card">
+          <div class="stat-icon">
+            <svg class="icon-svg sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+            </svg>
+          </div>
+          <div class="stat-details">
+            <span class="stat-label">Tracked Files</span>
+            <span id="statTrackedCount" class="stat-value">0</span>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon">
+            <svg class="icon-svg sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+          </div>
+          <div class="stat-details">
+            <span class="stat-label">Server Uptime</span>
+            <span id="statUptime" class="stat-value">00:00:00</span>
+          </div>
+        </div>
+        <div class="stat-card" id="statCardTs" style="display:none">
+          <div class="stat-icon">
+            <svg class="icon-svg sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="16 18 22 12 16 6"></polyline>
+              <polyline points="8 6 2 12 8 18"></polyline>
+            </svg>
+          </div>
+          <div class="stat-details">
+            <span class="stat-label">TypeScript</span>
+            <span id="statTsStatus" class="stat-value">Watching</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Feature 2: Conflict Diff Modal -->
+      <div id="modalConflict" class="modal hidden">
+        <div class="modal-box conflict-modal">
+          <div class="modal-header">
+            <div class="modal-title">
+              <svg class="icon-svg sm" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                <line x1="12" y1="9" x2="12" y2="13"></line>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+              </svg>
+              <span>⚠️ Sync Conflict Detected</span>
+            </div>
+            <button id="btnConflictClose" class="btn btn-icon-only btn-ghost-sm">
+              <svg class="icon-svg xs" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          </div>
+          <div class="conflict-meta">
+            <span id="conflictFilePath" class="conflict-path"></span>
+            <span class="conflict-hint">Both your IDE and Roblox Studio modified this file simultaneously. Choose which version to keep:</span>
+          </div>
+          <div class="conflict-diff-grid">
+            <div class="conflict-side ide-side">
+              <div class="conflict-side-header">
+                <span class="conflict-side-badge ide">📁 IDE Version</span>
+                <span class="conflict-side-sub">Your local file</span>
+              </div>
+              <textarea id="conflictIdeContent" class="conflict-textarea" readonly></textarea>
+            </div>
+            <div class="conflict-side studio-side">
+              <div class="conflict-side-header">
+                <span class="conflict-side-badge studio">🎮 Studio Version</span>
+                <span class="conflict-side-sub">From Roblox Studio</span>
+              </div>
+              <textarea id="conflictStudioContent" class="conflict-textarea" readonly></textarea>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button id="btnConflictIde" class="btn btn-primary">✅ Keep IDE Version</button>
+            <button id="btnConflictStudio" class="btn btn-danger">🎮 Use Studio Version</button>
+          </div>
+        </div>
+      </div>
+
+      <section class="workspace-grid">
+
+        <!-- Tab Bar -->
+        <div class="panel-tabs">
+          <button id="tabConsole" class="panel-tab active" title="Live Studio Console">
+            <svg class="icon-svg sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line>
+            </svg>
+            Console
+          </button>
+          <button id="tabRunner" class="panel-tab" title="Luau Runner — execute code live in Studio">
+            <svg class="icon-svg sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="5 3 19 12 5 21 5 3"></polygon>
+            </svg>
+            Luau Runner
+          </button>
+          <button id="tabExplorer" class="panel-tab" title="Game Explorer — live DataModel tree">
+            <svg class="icon-svg sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+              <polyline points="9 22 9 12 15 12 15 22"></polyline>
+            </svg>
+            Game Explorer
+          </button>
+        </div>
+
+        <!-- ── CONSOLE PANEL ── -->
+        <div id="panelConsole" class="panel console-panel tab-panel active">
+          <div class="panel-header">
+            <div class="panel-title">
+              <svg class="icon-svg sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line>
+              </svg>
+              <span>Live Studio Console</span>
+              <span id="consoleStatusPill" class="badge badge-success">WS Connected</span>
+            </div>
+            <div class="panel-actions">
+              <button id="btnExportLog" class="btn btn-sm btn-ghost" title="Export console log as .txt">Export Log</button>
+              <button id="btnClearConsole" class="btn btn-sm btn-ghost">Clear Log</button>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div id="consoleLog" class="console-log"></div>
+          </div>
+        </div>
+
+        <!-- ── LUAU RUNNER PANEL ── -->
+        <div id="panelRunner" class="panel tab-panel hidden">
+          <div class="panel-header">
+            <div class="panel-title">
+              <svg class="icon-svg sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+              </svg>
+              <span>Luau Runner</span>
+              <span id="runnerStatusPill" class="badge badge-warn">Studio Required</span>
+            </div>
+            <div class="panel-actions">
+              <button id="btnClearRunner" class="btn btn-sm btn-ghost">Clear Output</button>
+            </div>
+          </div>
+          <div class="panel-body runner-body">
+            <div class="runner-input-section">
+              <div class="runner-label">Luau Code <span class="runner-hint">Ctrl+Enter to run</span></div>
+              <textarea
+                id="runnerCode"
+                class="runner-textarea"
+                placeholder="-- Write Luau code here and execute it live inside Roblox Studio&#10;-- Example:&#10;print('Hello from IDE!')&#10;for i, v in ipairs(game.Workspace:GetChildren()) do&#10;    print(i, v.Name, v.ClassName)&#10;end"
+                spellcheck="false"
+              ></textarea>
+              <div class="runner-actions">
+                <span id="runnerJobStatus" class="runner-job-status">Ready</span>
+                <button id="btnRunLuau" class="btn btn-primary runner-run-btn" title="Execute in Studio (Ctrl+Enter)">
+                  <svg class="icon-svg sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                  </svg>
+                  Execute in Studio
+                </button>
+              </div>
+            </div>
+            <div class="runner-output-section">
+              <div class="runner-label">Output</div>
+              <div id="runnerOutput" class="runner-output"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── GAME EXPLORER PANEL ── -->
+        <div id="panelExplorer" class="panel tab-panel hidden">
+          <div class="panel-header">
+            <div class="panel-title">
+              <svg class="icon-svg sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+              </svg>
+              <span>Game Explorer</span>
+              <span id="explorerTimestamp" class="badge badge-info">No snapshot</span>
+            </div>
+            <div class="panel-actions">
+              <button id="btnRefreshTree" class="btn btn-sm btn-ghost" title="Request a fresh DataModel snapshot from Studio">Refresh</button>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div id="explorerTree" class="explorer-tree">
+              <div class="explorer-empty">Connect Studio to see the live DataModel hierarchy.</div>
+            </div>
+          </div>
+        </div>
+
+      </section>
+    </main>
+  </div>
+
+  <!-- ═══════════════════ CREATE PROJECT MODAL ═══════════════════ -->
+  <div id="modalCreateProject" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Create New Roblox Project</h3>
+        <button id="btnCloseModal" class="close-btn" title="Close (Esc)">&times;</button>
+      </div>
+      <div class="modal-body">
+        <label for="inputProjectName">Project Name:</label>
+        <input type="text" id="inputProjectName" class="text-input" placeholder="e.g. MyAwesomeRobloxGame" autofocus>
+
+        <!-- Template Picker -->
+        <label class="template-label">Project Template:</label>
+        <div class="template-picker">
+          <label class="template-option">
+            <input type="radio" name="projectTemplate" value="standard" checked>
+            <div class="template-card">
+              <div class="template-card-icon standard-theme">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+              </div>
+              <div class="template-card-info">
+                <div class="template-card-title">Standard</div>
+                <div class="template-card-desc">Classic Rojo structure with Roblox services</div>
+              </div>
+            </div>
+          </label>
+          <label class="template-option">
+            <input type="radio" name="projectTemplate" value="knit">
+            <div class="template-card">
+              <div class="template-card-icon knit-theme">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+              </div>
+              <div class="template-card-info">
+                <div class="template-card-title">Knit Framework</div>
+                <div class="template-card-desc">SuperbulletAI-style with Services, Controllers, DataStore</div>
+              </div>
+            </div>
+          </label>
+        </div>
+
+        <p class="input-hint">Project will be created in your Documents/RobloxProjects directory with starter scripts, AI guides, and IDE context files.</p>
+      </div>
+      <div class="modal-footer">
+        <button id="btnCancelModal" class="btn btn-secondary">Cancel</button>
+        <button id="btnSubmitCreateProject" class="btn btn-primary">Create Project</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════ RENAME PROJECT MODAL ═══════════════════ -->
+  <div id="modalRenameProject" class="modal-overlay hidden">
+    <div class="modal-card modal-sm">
+      <div class="modal-header">
+        <h3>Rename Project</h3>
+        <button id="btnCloseRenameModal" class="close-btn" title="Close (Esc)">&times;</button>
+      </div>
+      <div class="modal-body">
+        <label for="inputRenameProject">New Project Name:</label>
+        <input type="text" id="inputRenameProject" class="text-input" placeholder="e.g. MyRenamedGame">
+      </div>
+      <div class="modal-footer">
+        <button id="btnCancelRenameModal" class="btn btn-secondary">Cancel</button>
+        <button id="btnSubmitRenameProject" class="btn btn-primary">Rename</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════ DELETE PROJECT CONFIRM MODAL ═══════════════════ -->
+  <div id="modalDeleteProject" class="modal-overlay hidden">
+    <div class="modal-card modal-sm">
+      <div class="modal-header">
+        <h3>Delete Project</h3>
+        <button id="btnCloseDeleteModal" class="close-btn" title="Close (Esc)">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-warning-text">
+          ⚠️ Are you sure you want to permanently delete <strong id="deleteProjectNameLabel"></strong>?<br>
+          <span class="modal-warning-sub">This will remove the folder and all its files from disk. This cannot be undone.</span>
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button id="btnCancelDeleteModal" class="btn btn-secondary">Cancel</button>
+        <button id="btnConfirmDeleteProject" class="btn btn-danger">Delete Permanently</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════ CHOOSE IDE MODAL ═══════════════════ -->
+  <div id="modalSelectIDE" class="modal-overlay hidden">
+    <div class="modal-card modal-md">
+      <div class="modal-header">
+        <h3>Launch Code Editor / IDE</h3>
+        <button id="btnCloseIDEModal" class="close-btn" title="Close (Esc)">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="ide-modal-subtitle">Choose which IDE to open your active project in:</p>
+        
+        <div class="ide-grid">
+          <!-- VS Code -->
+          <div class="ide-card" data-ide="vscode">
+            <div class="ide-card-icon vscode-theme">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.15 2.587L18.21.21a1.494 1.494 0 0 0-1.705.29l-9.46 8.63-4.12-3.128a.999.999 0 0 0-1.276.057L.327 7.234a1 1 0 0 0-.033 1.465l3.5 3.3-3.5 3.3a1 1 0 0 0 .033 1.465l1.322 1.175a1 1 0 0 0 1.276.057l4.12-3.128 9.46 8.63a1.492 1.492 0 0 0 1.705.29l4.94-2.377A1.5 1.5 0 0 0 24 20.06V3.94a1.5 1.5 0 0 0-.85-1.353zM18 16.54l-6.17-5.54L18 5.46v11.08z"/></svg>
+            </div>
+            <div class="ide-card-details">
+              <div class="ide-title">VS Code</div>
+              <div class="ide-sub">Command: <code>code</code></div>
+            </div>
+            <button class="btn btn-sm btn-primary btn-launch-ide" data-ide="vscode">Launch</button>
+          </div>
+
+          <!-- Cursor -->
+          <div class="ide-card" data-ide="cursor">
+            <div class="ide-card-icon cursor-theme">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+            </div>
+            <div class="ide-card-details">
+              <div class="ide-title">Cursor AI</div>
+              <div class="ide-sub">Command: <code>cursor</code></div>
+            </div>
+            <button class="btn btn-sm btn-primary btn-launch-ide" data-ide="cursor">Launch</button>
+          </div>
+
+          <!-- Antigravity -->
+          <div class="ide-card" data-ide="antigravity">
+            <div class="ide-card-icon antigravity-theme">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+            </div>
+            <div class="ide-card-details">
+              <div class="ide-title">Antigravity IDE</div>
+              <div class="ide-sub">Google Antigravity IDE (Auto-Configured)</div>
+            </div>
+            <button class="btn btn-sm btn-primary btn-launch-ide" data-ide="antigravity">Launch</button>
+          </div>
+
+          <!-- Qoder -->
+          <div class="ide-card" data-ide="qoder">
+            <div class="ide-card-icon qoder-theme">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
+            </div>
+            <div class="ide-card-details">
+              <div class="ide-title">Qoder Studio</div>
+              <div class="ide-sub">Command: <code>qoder</code></div>
+            </div>
+            <button class="btn btn-sm btn-primary btn-launch-ide" data-ide="qoder">Launch</button>
+          </div>
+        </div>
+
+        <!-- Custom IDE Section -->
+        <div class="custom-ide-box">
+          <div class="custom-ide-header">
+            <svg class="icon-svg sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            <span>Other / Custom Editor</span>
+          </div>
+          <p class="custom-ide-desc">Enter a custom CLI command (e.g. <code>subl</code>, <code>vscodium</code>, <code>zed</code>, <code>nvim-qt</code>) or absolute path to your editor executable:</p>
+          <div class="custom-input-row">
+            <input type="text" id="inputCustomIDE" class="text-input" placeholder="e.g. C:\Users\sumnk\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Antigravity IDE\Antigravity IDE.lnk">
+            <button id="btnLaunchCustomIDE" class="btn btn-primary">Launch Custom</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <label class="checkbox-remember">
+          <input type="checkbox" id="chkSetDefaultIDE" checked>
+          Set as default editor for "Open IDE" button
+        </label>
+        <button id="btnCancelIDEModal" class="btn btn-secondary">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

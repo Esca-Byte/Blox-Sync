@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "roblox-bridge": {
+      "command": "node",
+      "args": [
+        "c:/Users/sumnk/Downloads/roblox-vscode-bridge-main/roblox-mcp-server/src/index.js"
+      ],
+      "env": {
+        "ROBLOX_BRIDGE_URL": "http://localhost:7777"
+      }
+    }
+  }
+}

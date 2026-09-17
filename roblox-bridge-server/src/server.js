@@ -7,6 +7,7 @@ const os = require('os');
 const fs = require('fs-extra');
 const chokidar = require('chokidar');
 const RojoParser = require('./rojoParser');
+const { ensureProjectGuidanceFiles } = require('./utils/projectGuidance');
 
 function getDefaultDocumentsDir() {
   const home = process.env.USERPROFILE || os.homedir();
@@ -153,8 +154,16 @@ class RobloxBridgeServer {
       `*.tmp\nnode_modules/\n.git/\n`
     );
 
-    console.log(`[ProjectManager] Created project template with default Roblox files: ${projectName} at ${projDir}`);
+    await ensureProjectGuidanceFiles(projDir, projectName, true);
+
+    console.log(`[ProjectManager] Created project template with README.md, USAGE.md, and .cursorrules: ${projectName} at ${projDir}`);
     return projDir;
+  }
+
+  async ensureProjectGuidanceFiles(projDir, projectName) {
+    const isKnit = (await fs.pathExists(path.join(projDir, 'src', 'ReplicatedStorage', 'ClientSource'))) ||
+                   (await fs.pathExists(path.join(projDir, 'src', 'ServerScriptService', 'ServerSource')));
+    await ensureProjectGuidanceFiles(projDir, projectName, true, isKnit);
   }
 
   async loadProject() {
@@ -165,6 +174,8 @@ class RobloxBridgeServer {
     this.changeHistory = [];
     this.rojoParser = new RojoParser(this.activeProjectPath);
     this.projectConfig = await this.rojoParser.parseProjectConfig();
+
+    await this.ensureProjectGuidanceFiles(this.activeProjectPath, this.activeProjectName);
 
     console.log(`[ProjectLoader] Loaded project config for '${this.activeProjectName}'`);
 
@@ -484,6 +495,40 @@ class RobloxBridgeServer {
       } catch (err) {
         res.status(500).json({ error: err.message });
       }
+    });
+
+    this.app.post('/api/open-studio', (req, res) => {
+      const studioLnk = 'C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\Roblox\\Roblox Studio.lnk';
+      const userLnk = path.join(
+        process.env.APPDATA || '',
+        'Microsoft', 'Windows', 'Start Menu', 'Programs', 'Roblox', 'Roblox Studio.lnk'
+      );
+
+      let cmd = '';
+      if (process.platform === 'win32') {
+        if (fs.existsSync(studioLnk)) {
+          cmd = `start "" "${studioLnk}"`;
+        } else if (fs.existsSync(userLnk)) {
+          cmd = `start "" "${userLnk}"`;
+        } else {
+          cmd = `start roblox-studio:`;
+        }
+      } else if (process.platform === 'darwin') {
+        cmd = `open -a "RobloxStudio"`;
+      } else {
+        cmd = `xdg-open roblox-studio:`;
+      }
+
+      console.log('[AppServer] Launching Roblox Studio...');
+      const { exec } = require('child_process');
+      exec(cmd, (err) => {
+        if (err) {
+          console.error(`[AppServer] Failed to launch Roblox Studio: ${err.message}`);
+          return res.status(500).json({ error: err.message });
+        }
+        console.log('[AppServer] Roblox Studio launched successfully');
+        res.json({ success: true, message: 'Roblox Studio launched', command: cmd });
+      });
     });
   }
 

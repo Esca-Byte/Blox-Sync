@@ -1,0 +1,27 @@
+{
+  "name": "roblox-mcp-server",
+  "version": "1.0.0",
+  "description": "Model Context Protocol (MCP) Server for Roblox Universal IDE Bridge",
+  "main": "src/index.js",
+  "bin": {
+    "roblox-mcp-server": "./src/index.js"
+  },
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "roblox",
+    "studio",
+    "luau",
+    "antigravity",
+    "cursor",
+    "ai-agent"
+  ],
+  "author": "Esca-Byte",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.6.1"
+  }
+}

@@ -28,16 +28,22 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# ─── Build Artifacts & Desktop App ────────────────
+# ─── Build Artifacts & Binaries ────────────────────
 *.tgz
+*.tar.gz
 *.zip
 *.7z
+*.rar
 *.exe
-roblox-bridge-app/
+*.msi
+*.dmg
+*.app
 dist/
 **/dist/
 out/
 build/
+*.builder-debug.yml
+builder-debug.yml
 
 # ─── Roblox Local Files ───────────────────────────
 *.rbxl
