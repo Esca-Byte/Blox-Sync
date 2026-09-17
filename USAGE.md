@@ -189,12 +189,14 @@ The **Roblox MCP Server** allows AI assistants (such as **Antigravity**, **Curso
 ---
 
 ### 🧠 Built-In AI Skills Package (`.agents/skills/`)
-Similar to the official Roblox Assistant Skills (`rbx-debug`, `rbx-perf-profiling`, `textured-gui`), our bridge repository includes native, ready-to-use AI Agent skills:
-- **`roblox-debug`**: Autonomous debugging runbook. Directs the AI to capture error logs from Studio, translate hierarchy paths to local files, and verify fixes with playtests.
-- **`roblox-unit-test`**: Generates and executes automated Luau test suites inside Studio using TestEZ/lightweight assertion harnesses.
-- **`roblox-perf-profiling`**: High-precision `os.clock()` benchmarking, spatial query performance profiling, and memory auditing.
-- **`roblox-ui-builder`**: Code-first responsive `ScreenGui` generation with smooth tween animations and modern glassmorphic styling.
-- **`roblox-scene-inspector`**: 3D world audits, unanchored part detection, collision checks, and StreamingEnabled spawn audits.
+Similar to the official Roblox Assistant Skills (`rbx-debug`, `rbx-perf-profiling`, `textured-gui`), our bridge repository includes a native, production-grade AI Agent skills suite with ready-to-run Luau companion scripts:
+- **`roblox-debug`**: Autonomous debugging runbook. Directs the AI to capture error logs from Studio, translate hierarchy paths to local files, and verify fixes with playtests. Includes `scripts/diagnose_world.luau`.
+- **`roblox-security-audit`**: RemoteEvent and RemoteFunction security auditing. Enforces server-side authority, validates parameter types/bounds, checks range, and prevents exploiter DoS. Includes `scripts/audit_remotes.luau`.
+- **`roblox-datastore-architect`**: Production DataStore & persistence engineering. Session locking, `UpdateAsync` atomic transformations, schema version migration, and `BindToClose` shutdown handling. Includes `scripts/datastore_mock_harness.luau`.
+- **`roblox-unit-test`**: Generates and executes automated Luau test suites inside Studio using lightweight assertion harnesses. Includes `scripts/test_harness.luau`.
+- **`roblox-perf-profiling`**: High-precision `os.clock()` benchmarking, spatial query performance profiling, and memory auditing. Includes `scripts/microbenchmark.luau`.
+- **`roblox-ui-builder`**: Code-first responsive `ScreenGui` generation with smooth tween animations and modern glassmorphic styling. Includes `scripts/modern_hud_template.luau`.
+- **`roblox-scene-inspector`**: 3D world audits, unanchored part detection, collision checks, and StreamingEnabled spawn audits. Includes `scripts/audit_physics.luau`.
 
 
 ---

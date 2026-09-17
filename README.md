@@ -95,6 +95,16 @@ The bridge includes a built-in **Model Context Protocol (MCP)** server (`roblox-
 
 See [mcp_config.example.json](mcp_config.example.json) and [roblox-mcp-server/README.md](roblox-mcp-server/README.md) for configuration.
 
+### 🧠 Built-In AI Skills Suite (`.agents/skills/`)
+The repository includes a comprehensive, modular Agent Skills suite (compatible with Antigravity and Cursor) mirroring and surpassing Roblox Studio's Assistant Skills:
+- **`roblox-debug`** — Autonomous error log diagnosis, stack trace mapping, and playtest verification.
+- **`roblox-security-audit`** — RemoteEvent/RemoteFunction vulnerability audits, exploiter mitigation, and server-side authority validation.
+- **`roblox-datastore-architect`** — Session locking, `UpdateAsync` race condition prevention, and schema migration.
+- **`roblox-unit-test`** — Automated test suite generation and live execution in Studio.
+- **`roblox-perf-profiling`** — Microsecond `os.clock()` benchmarking and memory leak detection.
+- **`roblox-ui-builder`** — Code-first responsive `ScreenGui` generation with glassmorphism and tweens.
+- **`roblox-scene-inspector`** — 3D physics audit, unanchored part detection, and streaming checks.
+
 ---
 
 ## 📁 Rojo-Compatible File Conventions

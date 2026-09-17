@@ -499,6 +499,16 @@ When the user asks to run playtests, check logs, lint scripts, or inspect Studio
 - **Export Place**: Call \`roblox_export_place\` to generate a standalone \`.rbxlx\` file.
 - **Install Wally Packages**: Call \`roblox_install_wally\`.
 DO NOT perform web searches for Roblox Studio testing APIs or search local disk folders for the bridge plugin.
+
+## 6. 🧠 BUILT-IN AI SKILLS SUITE (.agents/skills/)
+This project includes specialized runbooks in \`.agents/skills/\`:
+- **roblox-debug**: Read studio logs, locate offending disk files, apply fixes, and verify with playtests.
+- **roblox-security-audit**: Scan RemoteEvents/Functions, enforce server-side authority, validate bounds, and block exploiter manipulation.
+- **roblox-datastore-architect**: Design safe DataStore persistence with session locks, UpdateAsync atomic transformations, and BindToClose handlers.
+- **roblox-unit-test**: Build and execute automated Luau test suites live in Studio.
+- **roblox-perf-profiling**: Benchmark functions with os.clock() and profile memory/spatial queries.
+- **roblox-ui-builder**: Generate responsive, glassmorphic UI code with Scale dimensions and tweens.
+- **roblox-scene-inspector**: Audit 3D scene physics, unanchored parts, and streaming setups.
 `;
 }
 
@@ -519,6 +529,20 @@ async function ensureProjectGuidanceFiles(projDir, projectName, overwrite = true
   }
   if (overwrite || !await fs.pathExists(cursorRulesPath)) {
     await fs.outputFile(cursorRulesPath, cursorRulesContent, 'utf8');
+  }
+
+  // Auto-scaffold .agents/skills if the skills repository source exists
+  const candidateSkillsDirs = [
+    path.resolve(__dirname, '../../../../.agents/skills'),
+    path.resolve(__dirname, '../../../.agents/skills'),
+    path.resolve(process.cwd(), '.agents/skills'),
+  ];
+  for (const srcDir of candidateSkillsDirs) {
+    if (await fs.pathExists(srcDir)) {
+      const destSkills = path.join(projDir, '.agents', 'skills');
+      await fs.copy(srcDir, destSkills, { overwrite: false });
+      break;
+    }
   }
 }
 
