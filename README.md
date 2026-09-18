@@ -14,7 +14,7 @@
   <img src="https://img.shields.io/badge/platform-Windows-0078D6?style=flat-square&logo=windows" alt="Platform">
   <img src="https://img.shields.io/badge/Roblox-Studio-E2231A?style=flat-square&logo=roblox&logoColor=white" alt="Roblox">
   <img src="https://img.shields.io/badge/MCP-Enabled-8A2BE2?style=flat-square" alt="MCP">
-  <img src="https://img.shields.io/github/license/Esca-Byte/Roblox-Bridge?style=flat-square" alt="License">
+  <img src="https://img.shields.io/badge/license-Proprietary-red?style=flat-square" alt="License">
 </p>
 
 ---
@@ -51,4 +51,5 @@
 
 ## 📄 License
 
-Licensed under the [MIT License](LICENSE). Developed with ❤️ by [Esca-Byte](https://github.com/Esca-Byte).
+Proprietary License — All Rights Reserved. Copyright © 2026 [Esca-Byte](https://github.com/Esca-Byte).  
+Unauthorized copying, modification, or redistribution of this software is strictly prohibited. See [LICENSE](LICENSE) for details.
