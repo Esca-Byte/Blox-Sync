@@ -38,7 +38,8 @@
     "productName": "BloxSyncApp",
     "artifactName": "${productName}.${ext}",
     "win": {
-      "target": "portable"
+      "target": "portable",
+      "icon": "src/public/bloxsynclogo.png"
     },
     "directories": {
       "output": "dist"

@@ -22,6 +22,7 @@ async function createWindow() {
     minHeight: 520,
     backgroundColor: '#0c0e14',
     title: 'Blox Sync',
+    icon: path.join(__dirname, '../public/bloxsynclogo.png'),
     frame: false,
     autoHideMenuBar: true,
     show: false,
