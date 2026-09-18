@@ -2084,6 +2084,32 @@ screenGui.Parent = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGu
       res.json({ hasWally, hasPackages, projectPath: this.activeProjectPath });
     });
 
+    // Initialize default wally.toml if missing
+    this.app.post('/api/wally-init', async (req, res) => {
+      try {
+        const wallyFile = path.join(this.activeProjectPath, 'wally.toml');
+        const exists = await fs.pathExists(wallyFile);
+        if (exists) {
+          return res.json({ success: true, message: 'wally.toml already exists' });
+        }
+        const projName = (this.activeProject || 'roblox-project').toLowerCase().replace(/[^a-z0-9_-]/g, '-');
+        const template = `[package]
+name = "${projName}"
+version = "0.1.0"
+registry = "https://github.com/Upturn/wally-index"
+realm = "shared"
+
+[dependencies]
+# Example: Knit = "sleitnick/knit@^1.5.1"
+`;
+        await fs.writeFile(wallyFile, template, 'utf8');
+        this.log(`Created default wally.toml for "${this.activeProject}"`, 'info');
+        res.json({ success: true, message: 'wally.toml created' });
+      } catch (err) {
+        res.status(500).json({ error: err.message });
+      }
+    });
+
     // ══════════════════════════════════════════════════════════════════════
     // FEATURE 7 — TypeScript / roblox-ts Manual Compile
     // ══════════════════════════════════════════════════════════════════════

@@ -1067,6 +1067,22 @@ body.is-electron .window-controls {
 .tree-icon.icon-part         { color: #79c0ff; }
 .tree-icon.icon-remote       { color: #3fb950; }
 .tree-icon.icon-service      { color: #8b949e; }
+.tree-icon.icon-workspace    { color: #58a6ff; }
+.tree-icon.icon-lighting     { color: #e3b341; }
+.tree-icon.icon-sound        { color: #79c0ff; }
+.tree-icon.icon-players      { color: #3fb950; }
+.tree-icon.icon-teams        { color: #bc8cff; }
+.tree-icon.icon-storage      { color: #f0883e; }
+.tree-icon.icon-server       { color: #58a6ff; }
+.tree-icon.icon-gui          { color: #56d364; }
+.tree-icon.icon-pack         { color: #e3b341; }
+.tree-icon.icon-player       { color: #3fb950; }
+.tree-icon.icon-effect       { color: #d2a8ff; }
+.tree-icon.icon-light        { color: #f0883e; }
+.tree-icon.icon-tool         { color: #a5d6ff; }
+.tree-icon.icon-camera       { color: #8b949e; }
+.tree-icon.icon-spawn        { color: #e3b341; }
+.tree-icon.icon-value        { color: #79c0ff; }
 
 .explorer-child-count {
   font-size: 10px;
@@ -1075,8 +1091,53 @@ body.is-electron .window-controls {
   margin-left: auto;
 }
 
+.explorer-node-wrapper {
+  position: relative;
+}
+
+.explorer-node-wrapper.collapsed > .explorer-node-children {
+  display: none;
+}
+
+.explorer-node-wrapper.collapsed > .explorer-node .explorer-chevron-child {
+  transform: rotate(-90deg);
+}
+
+.explorer-chevron-child {
+  width: 10px;
+  height: 10px;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: transform 0.15s ease;
+  flex-shrink: 0;
+}
+
+.explorer-leaf-spacer {
+  width: 10px;
+  height: 10px;
+  flex-shrink: 0;
+}
+
+.explorer-node-children {
+  margin-left: 14px;
+  border-left: 1px solid var(--border-subtle);
+  padding-left: 4px;
+}
+
+.explorer-child-pill {
+  font-size: 9px;
+  font-family: var(--font-mono);
+  background-color: var(--bg-surface-elevated);
+  color: var(--text-muted);
+  padding: 1px 5px;
+  border-radius: var(--radius-xs);
+  border: 1px solid var(--border-subtle);
+  margin-left: 6px;
+}
+
 .explorer-more {
-  font-size: 11px;
+  font-size: 10px;
+  font-family: var(--font-mono);
   color: var(--text-faint);
   padding: 2px 6px;
 }

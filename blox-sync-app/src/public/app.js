@@ -884,7 +884,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // PATH B — Game Explorer Tree (Vector SVG Nodes)
+  // PATH B — Game Explorer Tree (Vector SVG Nodes & Recursive Hierarchy)
   // ═══════════════════════════════════════════════════════════════════════════
   const TREE_SVGS = {
     folder: `<svg class="tree-icon icon-folder" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>`,
@@ -897,8 +897,34 @@ document.addEventListener('DOMContentLoaded', () => {
     service: `<svg class="tree-icon icon-service" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>`
   };
 
-  function getServiceIcon() {
-    return TREE_SVGS.service;
+  const SERVICE_SVGS = {
+    Workspace: `<svg class="tree-icon icon-workspace" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>`,
+    Lighting: `<svg class="tree-icon icon-lighting" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>`,
+    SoundService: `<svg class="tree-icon icon-sound" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>`,
+    Players: `<svg class="tree-icon icon-players" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>`,
+    Teams: `<svg class="tree-icon icon-teams" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg>`,
+    ReplicatedStorage: `<svg class="tree-icon icon-storage" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="21 8 21 21 3 21 3 8"></polyline><rect x="1" y="3" width="22" height="5"></rect><line x1="10" y1="12" x2="14" y2="12"></line></svg>`,
+    ServerScriptService: `<svg class="tree-icon icon-server" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect><rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect><line x1="6" y1="6" x2="6.01" y2="6"></line><line x1="6" y1="18" x2="6.01" y2="18"></line></svg>`,
+    ServerStorage: `<svg class="tree-icon icon-storage" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>`,
+    StarterGui: `<svg class="tree-icon icon-gui" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>`,
+    StarterPack: `<svg class="tree-icon icon-pack" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>`,
+    StarterPlayer: `<svg class="tree-icon icon-player" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>`
+  };
+
+  const INSTANCE_SVGS = {
+    player: `<svg class="tree-icon icon-player" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>`,
+    effect: `<svg class="tree-icon icon-effect" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path></svg>`,
+    sound: `<svg class="tree-icon icon-sound" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>`,
+    gui: `<svg class="tree-icon icon-gui" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line></svg>`,
+    light: `<svg class="tree-icon icon-light" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"></path></svg>`,
+    tool: `<svg class="tree-icon icon-tool" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>`,
+    camera: `<svg class="tree-icon icon-camera" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>`,
+    value: `<svg class="tree-icon icon-value" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>`,
+    spawn: `<svg class="tree-icon icon-spawn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>`
+  };
+
+  function getServiceIcon(serviceName) {
+    return SERVICE_SVGS[serviceName] || TREE_SVGS.service;
   }
 
   function getInstanceIcon(className) {
@@ -906,12 +932,65 @@ document.addEventListener('DOMContentLoaded', () => {
       case 'Script': return TREE_SVGS.script;
       case 'LocalScript': return TREE_SVGS.localscript;
       case 'ModuleScript': return TREE_SVGS.modulescript;
-      case 'Folder': return TREE_SVGS.folder;
       case 'Model': return TREE_SVGS.model;
-      case 'Part': case 'MeshPart': case 'WedgePart': case 'TrussPart': return TREE_SVGS.part;
+      case 'Part': case 'MeshPart': case 'WedgePart': case 'TrussPart': case 'CornerWedgePart': return TREE_SVGS.part;
       case 'RemoteEvent': case 'RemoteFunction': case 'BindableEvent': case 'BindableFunction': return TREE_SVGS.remote;
+      case 'Player': return INSTANCE_SVGS.player;
+      case 'Sky': case 'Atmosphere': case 'SunRaysEffect': case 'BloomEffect': case 'DepthOfFieldEffect':
+      case 'BlurEffect': case 'ColorCorrectionEffect': case 'PostEffect': return INSTANCE_SVGS.effect;
+      case 'Sound': case 'SoundGroup': return INSTANCE_SVGS.sound;
+      case 'PointLight': case 'SpotLight': case 'SurfaceLight': return INSTANCE_SVGS.light;
+      case 'ScreenGui': case 'BillboardGui': case 'SurfaceGui': case 'Frame': case 'ScrollingFrame':
+      case 'TextLabel': case 'TextButton': case 'TextBox': case 'ImageLabel': case 'ImageButton': return INSTANCE_SVGS.gui;
+      case 'Tool': case 'Accessory': case 'Hat': return INSTANCE_SVGS.tool;
+      case 'Camera': return INSTANCE_SVGS.camera;
+      case 'SpawnLocation': return INSTANCE_SVGS.spawn;
+      case 'StringValue': case 'IntValue': case 'NumberValue': case 'BoolValue':
+      case 'ObjectValue': case 'Color3Value': case 'CFrameValue': case 'Vector3Value': return INSTANCE_SVGS.value;
       default: return TREE_SVGS.folder;
     }
+  }
+
+  function createInstanceNodeEl(child) {
+    const nodeWrapper = document.createElement('div');
+    nodeWrapper.className = 'explorer-node-wrapper';
+
+    const hasChildren = child.children && child.children.length > 0;
+    const cIcon = getInstanceIcon(child.className);
+
+    const nodeEl = document.createElement('div');
+    nodeEl.className = 'explorer-node';
+    nodeEl.innerHTML = `
+      ${hasChildren ? `
+        <svg class="explorer-chevron-child" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+      ` : `<span class="explorer-leaf-spacer"></span>`}
+      <span class="explorer-node-icon">${cIcon}</span>
+      <span class="explorer-node-name">${escapeHtml(child.name)}</span>
+      <span class="explorer-node-class ${escapeHtml(child.className)}">${escapeHtml(child.className)}</span>
+      ${hasChildren ? `<span class="explorer-child-pill">${child.children.length}</span>` : ''}
+    `;
+    nodeWrapper.appendChild(nodeEl);
+
+    if (hasChildren) {
+      const childrenContainer = document.createElement('div');
+      childrenContainer.className = 'explorer-node-children';
+      for (const grandChild of child.children) {
+        childrenContainer.appendChild(createInstanceNodeEl(grandChild));
+      }
+      nodeWrapper.appendChild(childrenContainer);
+
+      const chevron = nodeEl.querySelector('.explorer-chevron-child');
+      if (chevron) {
+        chevron.addEventListener('click', (e) => {
+          e.stopPropagation();
+          nodeWrapper.classList.toggle('collapsed');
+        });
+      }
+    }
+
+    return nodeWrapper;
   }
 
   function renderExplorerTree(tree, timestamp) {
@@ -944,21 +1023,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const children = svcEl.querySelector('.explorer-service-children');
       if (svcNode.children && svcNode.children.length > 0) {
         for (const child of svcNode.children) {
-          const cIcon = getInstanceIcon(child.className);
-          const nodeEl = document.createElement('div');
-          nodeEl.className = 'explorer-node';
-          nodeEl.innerHTML = `
-            <span class="explorer-node-icon">${cIcon}</span>
-            <span class="explorer-node-name">${escapeHtml(child.name)}</span>
-            <span class="explorer-node-class ${escapeHtml(child.className)}">${escapeHtml(child.className)}</span>
-          `;
-          children.appendChild(nodeEl);
-          if (child.children && child.children.length > 0) {
-            const more = document.createElement('div');
-            more.className = 'explorer-more';
-            more.textContent = `  └ ${child.children.length} child${child.children.length !== 1 ? 'ren' : ''}`;
-            children.appendChild(more);
-          }
+          children.appendChild(createInstanceNodeEl(child));
         }
       } else {
         children.innerHTML = '<div class="explorer-more">Empty</div>';
@@ -1089,9 +1154,23 @@ document.addEventListener('DOMContentLoaded', () => {
   // FEATURE 6 — Wally Package Manager
   // ═══════════════════════════════════════════════════════════════════════════
   async function wallyInstall() {
-    if (btnWallyInstall) btnWallyInstall.classList.add('loading');
-    showToast('Running wally install...', 'info');
     try {
+      const statusRes = await fetch('/api/wally-status').then(r => r.json()).catch(() => ({}));
+      if (!statusRes.hasWally) {
+        const initWally = confirm(`No "wally.toml" found in active project "${currentProject}".\n\nWould you like Blox Sync to initialize a default wally.toml now?`);
+        if (initWally) {
+          const initRes = await fetch('/api/wally-init', { method: 'POST' });
+          if (initRes.ok) {
+            showToast('Initialized wally.toml in project', 'success');
+            checkProjectFeatures();
+          } else {
+            showToast('Failed to create wally.toml', 'error');
+          }
+        }
+        return;
+      }
+      if (btnWallyInstall) btnWallyInstall.classList.add('loading');
+      showToast('Running wally install...', 'info');
       const res = await fetch('/api/wally-install', { method: 'POST' });
       const data = await res.json().catch(() => ({}));
       if (btnWallyInstall) btnWallyInstall.classList.remove('loading');
