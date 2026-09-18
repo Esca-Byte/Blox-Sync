@@ -7,7 +7,7 @@ description: >-
 
 # 🛠️ Roblox Autonomous Debugging Runbook
 
-This skill teaches you how to investigate, locate, and fix Roblox script bugs autonomously using the `roblox-bridge` MCP tools and Studio inspection workflows.
+This skill teaches you how to investigate, locate, and fix Roblox script bugs autonomously using the Blox Sync MCP tools and Studio inspection workflows.
 
 ---
 

@@ -1,10 +1,16 @@
 @echo off
-title Roblox Universal IDE Bridge -- Native Desktop App
+title Blox Sync -- Native Desktop App
 cd /d "%~dp0"
 
 echo =============================================================
-echo   Launching Roblox Universal IDE Bridge Desktop App
+echo   Launching Blox Sync Desktop App
 echo =============================================================
+
+if exist "dist\BloxSyncApp.exe" (
+    echo Starting compiled BloxSyncApp.exe...
+    start "" "dist\BloxSyncApp.exe"
+    exit /b 0
+)
 
 if exist "dist\RobloxBridgeApp.exe" (
     echo Starting compiled RobloxBridgeApp.exe...

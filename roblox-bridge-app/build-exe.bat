@@ -1,9 +1,9 @@
 @echo off
-title Roblox Universal IDE Bridge -- Building Windows Executable (.exe)
+title Blox Sync -- Building Windows Executable (.exe)
 cd /d "%~dp0"
 
 echo =============================================================
-echo   Building Standalone RobloxBridgeApp.exe Executable...
+echo   Building Standalone BloxSyncApp.exe Executable...
 echo =============================================================
 
 echo [1/2] Installing build dependencies (Electron ^& Builder)...
@@ -21,7 +21,7 @@ if errorlevel 1 (
 echo.
 echo =============================================================
 echo   SUCCESS! Standalone Executable Created:
-echo   %~dp0dist\RobloxBridgeApp.exe
+echo   %~dp0dist\BloxSyncApp.exe
 echo =============================================================
 echo.
 pause

@@ -8,7 +8,7 @@
   <img src="https://img.shields.io/github/license/Esca-Byte/Roblox-Bridge?style=for-the-badge" alt="License">
 </p>
 
-<h1 align="center">🔗 Roblox Universal IDE Bridge & AI Agent Platform</h1>
+<h1 align="center">⚡ Blox Sync — Roblox Universal IDE Bridge & AI Agent Platform</h1>
 
 <p align="center">
   <strong>Real-time two-way sync, native desktop dashboard, and autonomous AI Agent integration (MCP) between any external editor and Roblox Studio.</strong><br>
@@ -25,12 +25,12 @@
 
 ---
 
-## 🎯 What is the Universal Bridge?
+## 🎯 What is Blox Sync?
 
-The built-in Roblox Studio script editor lacks the speed, AI intelligence, and extension ecosystems of professional developer environments. The **Roblox Universal IDE Bridge** gives you the best of both worlds:
+The built-in Roblox Studio script editor lacks the speed, AI intelligence, and extension ecosystems of professional developer environments. **Blox Sync** gives you the best of both worlds:
 
 - ⚡ **Direct Real-Time Two-Way Sync**: Edit Lua/Luau in your favorite editor; saves update inside Studio in milliseconds.
-- 🖥️ **Native Desktop Dashboard (`RobloxBridgeApp.exe`)**: Control center with project switching, live activity logs, Luau script runner, and Game Explorer.
+- 🖥️ **Native Desktop Dashboard (`BloxSyncApp.exe`)**: Control center with project switching, live activity logs, Luau script runner, and Game Explorer.
 - 🤖 **AI Agent Autonomous Control (MCP Server)**: Connects with AI assistants (**Antigravity**, **Cursor**, **Claude Desktop**) via the Model Context Protocol. AI agents can execute tests, inspect game hierarchies, and read runtime errors autonomously!
 - 📦 **.rbxlx Place File Export**: Download complete, hierarchical XML place files that open directly in Roblox Studio without needing any plugin.
 - 🛡️ **Smart Conflict Diff / Merge**: Side-by-side split visual diff modal that prevents data loss if Studio and your IDE edit the same script at once.
@@ -44,7 +44,7 @@ The built-in Roblox Studio script editor lacks the speed, AI intelligence, and e
 
 ### 1. Installation (One-Click)
 Run `install.bat` in the repository root. It automatically:
-- Installs `RobloxBridge.lua` to `%LOCALAPPDATA%\Roblox\Plugins\`
+- Installs `BloxSync.lua` to `%LOCALAPPDATA%\Roblox\Plugins\`
 - Sets up your default projects directory (`Documents\RobloxProjects`)
 - Installs all dependencies for the server, desktop app, and MCP agent layer.
 
@@ -54,8 +54,8 @@ Run `install.bat` in the repository root. It automatically:
 3. Save.
 
 ### 3. Launch & Connect
-1. Double-click `RobloxBridgeApp.exe` (in `roblox-bridge-app/dist/`) or run `start-bridge.bat`.
-2. In Roblox Studio, click **Plugins** → **Roblox Universal Bridge** → **Status Widget** → **Connect**.
+1. Double-click `BloxSyncApp.exe` (in `roblox-bridge-app/dist/`) or run `start-bloxsync.bat`.
+2. In Roblox Studio, click **Plugins** → **Blox Sync** → **Status Widget** → **Connect**.
 3. Edit code in your IDE — changes reflect instantly in Studio!
 
 For detailed step-by-step testing instructions, read the **[Complete Usage Guide (USAGE.md)](USAGE.md)**.
@@ -75,13 +75,13 @@ For detailed step-by-step testing instructions, read the **[Complete Usage Guide
 | **Luau Execution Engine** | Testing | In-app runner executing arbitrary Luau directly inside Studio with live timing & return values. |
 | **DataModel Game Explorer** | Inspection | Live hierarchy tree snapshot streamed from Studio to the dashboard. |
 | **Studio Log Streaming** | Console | Studio `print`, `warn`, and `error` outputs streamed live to your desktop console. |
-| **Roblox MCP Server** | AI Agents | Standard Model Context Protocol server giving AI agents direct tool access in Studio. |
+| **Blox Sync MCP Server** | AI Agents | Standard Model Context Protocol server giving AI agents direct tool access in Studio. |
 
 ---
 
 ## 🤖 AI Agent Integration (MCP Server)
 
-The bridge includes a built-in **Model Context Protocol (MCP)** server (`roblox-mcp-server`), allowing AI assistants like **Antigravity**, **Cursor**, or **Claude Desktop** to autonomously interact with Roblox Studio:
+Blox Sync includes a built-in **Model Context Protocol (MCP)** server (`roblox-mcp-server`), allowing AI assistants like **Antigravity**, **Cursor**, or **Claude Desktop** to autonomously interact with Roblox Studio:
 
 - `roblox_start_playtest` — AI starts Play Solo or Server + Player playtests directly.
 - `roblox_stop_playtest` — AI stops playtests and returns Studio to edit mode.
@@ -109,7 +109,7 @@ The repository includes a comprehensive, modular Agent Skills suite (compatible 
 
 ## 📁 Rojo-Compatible File Conventions
 
-The bridge organizes disk files into Roblox hierarchy:
+Blox Sync organizes disk files into Roblox hierarchy:
 
 ```
 Documents\RobloxProjects\<ProjectName>\
@@ -132,9 +132,9 @@ Documents\RobloxProjects\<ProjectName>\
 
 ## 🔧 Troubleshooting
 
-- **Studio says "Connection failed" or "Offline"**: Ensure the bridge server/app is running on port `7777` and **Allow HTTP Requests** is enabled in Studio Game Settings.
+- **Studio says "Connection failed" or "Offline"**: Ensure the Blox Sync server/app is running on port `7777` and **Allow HTTP Requests** is enabled in Studio Game Settings.
 - **"Cannot start server script (lacking capability RunServerScript)"**: You have a `.server.luau` script inside a client container (e.g. `StarterPlayerScripts` or character models). Rename it to `.client.luau`.
-- **Port 7777 Busy**: If another app uses 7777, you can change the port in `appServer.js` and `RobloxBridge.lua`.
+- **Port 7777 Busy**: If another app uses 7777, you can change the port in `appServer.js` and `BloxSync.lua`.
 
 ---
 

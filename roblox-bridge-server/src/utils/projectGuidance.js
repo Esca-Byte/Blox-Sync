@@ -5,7 +5,7 @@ function getReadmeContent(projectName) {
   return `# 🚀 ${projectName} — Roblox Studio Architecture & AI Developer Guide
 
 > **Project Name**: \`${projectName}\`  
-> **Synchronization Engine**: [Roblox Universal IDE Bridge](https://github.com/Esca-Byte) (Rojo Specification Compatible)  
+> **Synchronization Engine**: [Blox Sync](https://github.com/Esca-Byte) (Rojo Specification Compatible)  
 > **Target Platform**: Roblox Studio (Luau Engine)
 
 ---
@@ -273,7 +273,7 @@ function getKnitReadmeContent(projectName) {
 
 > **Project Name**: \`${projectName}\`  
 > **Framework**: [Knit Framework](https://sleitnick.github.io/Knit/) + Superbullet-style Modular Architecture  
-> **Synchronization Engine**: [Roblox Universal IDE Bridge](https://github.com/Esca-Byte)  
+> **Synchronization Engine**: [Blox Sync](https://github.com/Esca-Byte)  
 > **Target Platform**: Roblox Studio (Luau Engine)
 
 ---
@@ -352,7 +352,7 @@ To keep services and controllers clean and avoid spaghetti code:
 function getUsageContent(projectName) {
   return `# 📖 ${projectName} — Step-by-Step Usage & AI Cheat Sheet
 
-This project is connected in real-time to **Roblox Studio** using the **Roblox Universal IDE Bridge**.
+This project is connected in real-time to **Roblox Studio** using **Blox Sync**.
 
 ---
 
@@ -363,7 +363,7 @@ This project is connected in real-time to **Roblox Studio** using the **Roblox U
    - Go to **Home → Game Settings → Security** and enable **Allow HTTP Requests**.
 2. **Connect Studio Plugin**:
    - In Roblox Studio, open the **Plugins** tab.
-   - Click **Roblox Universal Bridge → Connect**.
+   - Click **Blox Sync → Connect**.
 3. **Live Two-Way Sync**:
    - Save any file (\`Ctrl+S\`) in your IDE.
    - The changes sync to Roblox Studio immediately!
@@ -432,7 +432,7 @@ function getCursorRulesContent(isKnit = false) {
   if (isKnit) {
     return `# Roblox Studio Project - Knit Framework AI Coding Rules
 
-You are an expert Roblox Luau game engineer working on a Knit Framework project synchronized via Roblox Universal IDE Bridge.
+You are an expert Roblox Luau game engineer working on a Knit Framework project synchronized via Blox Sync.
 
 ## 1. ⚠️ ABSOLUTE RULE: NO YIELDING IN KnitInit
 - \`KnitInit\` must NEVER call \`WaitForChild\`, \`task.wait\`, \`:await()\`, or any yielding method.
@@ -463,10 +463,10 @@ You are an expert Roblox Luau game engineer working on a Knit Framework project 
 
   return `# Roblox Studio Project - AI Coding Agent Rules & Guidelines
 
-You are an expert Roblox Luau game engineer assisting with a project synchronized via Roblox Universal IDE Bridge.
+You are an expert Roblox Luau game engineer assisting with a project synchronized via Blox Sync.
 
 ## 1. ⚠️ CRITICAL ARCHITECTURE RULE: DIRECTORIES VS ROBLOX INSTANCES
-- In this Rojo-compatible bridge, disk directories map to generic \`Folder\` instances in Roblox Studio.
+- In this Blox Sync (Rojo-compatible) workspace, disk directories map to generic \`Folder\` instances in Roblox Studio.
 - DO NOT create a raw folder in \`src/StarterGui/\` expecting it to render as a \`ScreenGui\`.
 - Always use either:
   1. Code-First Programmatic UI with \`Instance.new("ScreenGui")\` inside a \`*.client.luau\` script.
@@ -486,7 +486,7 @@ You are an expert Roblox Luau game engineer assisting with a project synchronize
 - \`*.luau\` / \`*.lua\` -> \`ModuleScript\` (ReplicatedStorage, ServerStorage)
 
 ## 5. 🤖 MCP TOOLS DIRECT USAGE GUIDE (NO WEB SEARCHES NEEDED)
-When the user asks to run playtests, check logs, lint scripts, or inspect Studio state, ALWAYS call the available \`roblox-bridge\` MCP tools directly:
+When the user asks to run playtests, check logs, lint scripts, or inspect Studio state, ALWAYS call the available \`blox-sync\` MCP tools directly:
 - **Start Playtest**: Call \`roblox_start_playtest\` with \`{ "mode": "solo" }\` (or \`{ "mode": "server", "playerCount": 1 }\`).
 - **Stop Playtest**: Call \`roblox_stop_playtest\` to halt testing and return Studio to Edit Mode.
 - **Lint / Validate Script**: Call \`roblox_lint_script\` with \`relPath\` or \`code\` to statically verify syntax and prevent runtime crashes before syncing.

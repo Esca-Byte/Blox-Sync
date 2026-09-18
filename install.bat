@@ -1,10 +1,10 @@
 @echo off
 setlocal enabledelayedexpansion
-title Roblox Universal IDE Bridge -- Installer v2.2.0
+title Blox Sync -- Installer v2.2.0
 
 echo.
 echo  +-------------------------------------------------------------+
-echo  ^|   Roblox Universal IDE Bridge (v2.2.0) -- Installer        ^|
+echo  ^|   Blox Sync (v2.2.0) -- Installer                           ^|
 echo  +-------------------------------------------------------------+
 echo.
 
@@ -16,13 +16,18 @@ if not exist "%PLUGINS_DIR%" (
     mkdir "%PLUGINS_DIR%"
 )
 
-echo  [1/4] Copying RobloxBridge.lua --^> Roblox Plugins...
-copy /Y "%~dp0roblox-plugin\RobloxBridge.lua" "%PLUGINS_DIR%\RobloxBridge.lua" >nul
+:: Clean up legacy RobloxBridge.lua if present
+if exist "%PLUGINS_DIR%\RobloxBridge.lua" (
+    del /F /Q "%PLUGINS_DIR%\RobloxBridge.lua" >nul 2>&1
+)
+
+echo  [1/4] Copying BloxSync.lua --^> Roblox Plugins...
+copy /Y "%~dp0roblox-plugin\BloxSync.lua" "%PLUGINS_DIR%\BloxSync.lua" >nul
 if errorlevel 1 (
     echo  ERROR: Could not copy plugin file. Close Roblox Studio and try again.
     pause & exit /b 1
 )
-echo         OK: %PLUGINS_DIR%\RobloxBridge.lua
+echo         OK: %PLUGINS_DIR%\BloxSync.lua
 
 :: 2. Create User Projects Directory
 echo.
@@ -61,14 +66,14 @@ if errorlevel 1 (
 
 echo.
 echo  +=============================================================+
-echo  ^|   Installation complete!  (v2.2.0 + Path A MCP Server)     ^|
+echo  ^|   Installation complete!  (Blox Sync v2.2.0 + MCP Server)   ^|
 echo  +=============================================================+
 echo.
 echo   HOW TO START USING:
 echo.
-echo   1. Double-click `start-bridge.bat` (or start `RobloxBridgeApp.exe`)
+echo   1. Double-click `start-bloxsync.bat` (or start `BloxSyncApp.exe`)
 echo   2. Open ANY IDE or Text Editor (Antigravity, Cursor, VS Code, etc.)
-echo   3. Connect Roblox Studio via the Universal Bridge plugin toolbar.
+echo   3. Connect Roblox Studio via the Blox Sync plugin toolbar.
 echo   4. (AI Agents): Connect `mcp_config.example.json` to Antigravity / Cursor
 echo      to enable direct Luau execution, logs, and live DataModel inspection!
 echo.

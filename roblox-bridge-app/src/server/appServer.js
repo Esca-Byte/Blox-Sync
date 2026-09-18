@@ -152,7 +152,7 @@ class RojoParser {
   }
 }
 
-class RobloxBridgeAppServer {
+class BloxSyncAppServer {
   constructor(options = {}) {
     this.port = options.port || 7777;
     this.baseProjectsDir = options.baseProjectsDir || getDefaultProjectsDir();
@@ -205,6 +205,10 @@ class RobloxBridgeAppServer {
 
   // ─── Persistent Config ───────────────────────────────────────────────────
   get configFilePath() {
+    return path.join(this.baseProjectsDir, 'blox-sync-config.json');
+  }
+
+  get legacyConfigFilePath() {
     return path.join(this.baseProjectsDir, 'bridge-config.json');
   }
 
@@ -216,8 +220,14 @@ class RobloxBridgeAppServer {
           return cfg;
         }
       }
+      if (await fs.pathExists(this.legacyConfigFilePath)) {
+        const cfg = await fs.readJson(this.legacyConfigFilePath);
+        if (cfg.lastActiveProject) {
+          return cfg;
+        }
+      }
     } catch (e) {
-      console.warn('[Config] Could not read bridge-config.json:', e.message);
+      console.warn('[Config] Could not read config:', e.message);
     }
     return {};
   }
@@ -227,10 +237,12 @@ class RobloxBridgeAppServer {
       let existing = {};
       if (await fs.pathExists(this.configFilePath)) {
         existing = await fs.readJson(this.configFilePath).catch(() => ({}));
+      } else if (await fs.pathExists(this.legacyConfigFilePath)) {
+        existing = await fs.readJson(this.legacyConfigFilePath).catch(() => ({}));
       }
       await fs.writeJson(this.configFilePath, { ...existing, ...data }, { spaces: 2 });
     } catch (e) {
-      console.warn('[Config] Could not write bridge-config.json:', e.message);
+      console.warn('[Config] Could not write blox-sync-config.json:', e.message);
     }
   }
 
@@ -251,8 +263,14 @@ class RobloxBridgeAppServer {
     try {
       const localAppData = process.env.LOCALAPPDATA || path.join(require('os').homedir(), 'AppData', 'Local');
       const pluginsDir = path.join(localAppData, 'Roblox', 'Plugins');
-      const pluginTargetPath = path.join(pluginsDir, 'RobloxBridge.lua');
-      const pluginSourcePath = path.join(__dirname, 'RobloxBridge.lua');
+      const pluginTargetPath = path.join(pluginsDir, 'BloxSync.lua');
+      const pluginSourcePath = path.join(__dirname, 'BloxSync.lua');
+
+      // Clean up legacy RobloxBridge.lua if present to prevent duplicate plugins in Studio
+      const legacyPluginPath = path.join(pluginsDir, 'RobloxBridge.lua');
+      if (await fs.pathExists(legacyPluginPath)) {
+        await fs.remove(legacyPluginPath).catch(() => {});
+      }
 
       if (await fs.pathExists(pluginSourcePath)) {
         await fs.ensureDir(pluginsDir);
@@ -300,7 +318,7 @@ class RobloxBridgeAppServer {
       });
 
       this.server.listen(this.port, () => {
-        this.log(`Roblox Bridge Server running on http://localhost:${this.port}`, 'info');
+        this.log(`Blox Sync Server running on http://localhost:${this.port}`, 'info');
         this.log(`Projects Directory: ${this.baseProjectsDir}`, 'info');
         this.log(`Active Project: ${this.activeProjectName}`, 'info');
         resolve();
@@ -396,7 +414,7 @@ class RobloxBridgeAppServer {
 
     const readmeContent = `# 🎮 ${projectName} — Roblox Studio IDE Project
 
-This Roblox project is configured for real-time synchronization with **Roblox Studio** using the **Roblox Universal IDE Bridge**.
+This Roblox project is configured for real-time synchronization with **Roblox Studio** using **Blox Sync**.
 
 ---
 
@@ -549,7 +567,7 @@ ${projectName}/
 
     const cursorRulesContent = `# Roblox Studio Project - AI Coding Agent Rules
 
-You are working in a Roblox project managed by the Roblox Universal IDE Bridge.
+You are working in a Roblox project managed by Blox Sync.
 
 ## KEY RULES FOR ROBLOX CODE GENERATION:
 
@@ -576,7 +594,7 @@ You are working in a Roblox project managed by the Roblox Universal IDE Bridge.
 
     const usageContent = `# 📖 ${projectName} — Project Usage & AI Guide
 
-This project is synchronized with **Roblox Studio** using the **Roblox Universal IDE Bridge**.
+This project is synchronized with **Roblox Studio** using **Blox Sync**.
 
 ---
 
@@ -585,7 +603,7 @@ This project is synchronized with **Roblox Studio** using the **Roblox Universal
 1. **Roblox Studio Setup**:
    - Open your place in Roblox Studio.
    - Go to **Game Settings → Security** and turn ON **Allow HTTP Requests**.
-   - Open **Plugins → Roblox Universal Bridge** and click **Connect to Bridge Server**.
+   - Open **Plugins → Blox Sync** and click **Connect to Blox Sync Server**.
 
 2. **Writing Code**:
    - Write Luau code in your IDE (VS Code, Cursor, Antigravity, etc.).
@@ -1008,7 +1026,7 @@ node_modules/
     const knitReadme = `# 🎮 ${projectName} — Knit Framework Project
 
 This project uses the **SuperbulletAI / Knit Framework** architecture for clean, scalable Roblox development.
-Synced in real time with Roblox Studio via the **Roblox Universal IDE Bridge**.
+Synced in real time with Roblox Studio via **Blox Sync**.
 
 ---
 
@@ -1105,7 +1123,7 @@ screenGui.Parent = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGu
 
 ## ⚡ Quick Start
 1. Open Roblox Studio → Game Settings → Security → Enable HTTP Requests
-2. Open **Plugins → Roblox Universal Bridge** → Connect
+2. Open **Plugins → Blox Sync** → Connect
 3. Install Knit via [Wally](https://wally.run): \`wally install\`
 4. Write code in your IDE → save (Ctrl+S) → syncs instantly!
 `;
@@ -1652,7 +1670,7 @@ screenGui.Parent = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGu
             return res.status(409).json({
               conflict: true,
               relPath: targetRelPath,
-              message: 'File was recently modified by the IDE. Conflict detected — resolve in the Bridge UI.'
+              message: 'File was recently modified by the IDE. Conflict detected — resolve in the Blox Sync UI.'
             });
           }
         }
@@ -2220,8 +2238,10 @@ screenGui.Parent = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGu
 }
 
 if (require.main === module) {
-  const appServer = new RobloxBridgeAppServer();
+  const appServer = new BloxSyncAppServer();
   appServer.start().catch(console.error);
 }
 
-module.exports = RobloxBridgeAppServer;
+BloxSyncAppServer.BloxSyncAppServer = BloxSyncAppServer;
+BloxSyncAppServer.RobloxBridgeAppServer = BloxSyncAppServer;
+module.exports = BloxSyncAppServer;

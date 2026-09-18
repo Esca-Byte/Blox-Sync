@@ -2,7 +2,7 @@
 
 /**
  * ═══════════════════════════════════════════════════════════════════════════
- * 🤖 Roblox Universal IDE Bridge — Model Context Protocol (MCP) Server
+ * 🤖 Blox Sync — Model Context Protocol (MCP) Server
  * ═══════════════════════════════════════════════════════════════════════════
  * Allows AI assistants (Antigravity, Cursor, Claude Desktop, etc.) to
  * interact directly with Roblox Studio:
@@ -24,7 +24,7 @@ const {
   ListToolsRequestSchema,
 } = require('@modelcontextprotocol/sdk/types.js');
 
-const BRIDGE_BASE_URL = process.env.ROBLOX_BRIDGE_URL || 'http://localhost:7777';
+const BRIDGE_BASE_URL = process.env.BLOX_SYNC_URL || process.env.ROBLOX_BRIDGE_URL || 'http://localhost:7777';
 
 // ── HTTP Helper ─────────────────────────────────────────────────────────────
 async function bridgeRequest(endpoint, method = 'GET', body = null) {
@@ -51,7 +51,7 @@ async function bridgeRequest(endpoint, method = 'GET', body = null) {
     return {
       ok: false,
       status: 0,
-      error: `Failed to connect to Roblox Bridge at ${BRIDGE_BASE_URL}. Is the Bridge Desktop App or Server running? (${err.message})`,
+      error: `Failed to connect to Blox Sync at ${BRIDGE_BASE_URL}. Is the Blox Sync Desktop App or Server running? (${err.message})`,
     };
   }
 }
@@ -59,7 +59,7 @@ async function bridgeRequest(endpoint, method = 'GET', body = null) {
 // ── MCP Server Instance ─────────────────────────────────────────────────────
 const server = new Server(
   {
-    name: 'roblox-bridge-mcp',
+    name: 'blox-sync-mcp',
     version: '1.0.0',
   },
   {
@@ -76,7 +76,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       {
         name: 'roblox_get_status',
         description:
-          'Get current status of the Roblox Bridge and Roblox Studio connection, active project name, tracked file count, and server uptime.',
+          'Get current status of Blox Sync and Roblox Studio connection, active project name, tracked file count, and server uptime.',
         inputSchema: {
           type: 'object',
           properties: {},
@@ -143,7 +143,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       {
         name: 'roblox_get_tracked_files',
         description:
-          'List all scripts currently tracked and synced by the bridge in the active project, including their relative paths, script types, Roblox hierarchy paths, and GUIDs.',
+          'List all scripts currently tracked and synced by Blox Sync in the active project, including their relative paths, script types, Roblox hierarchy paths, and GUIDs.',
         inputSchema: {
           type: 'object',
           properties: {
@@ -277,7 +277,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         }
         const data = res.data;
         const formatted = [
-          `🟢 Bridge Server: Running at ${BRIDGE_BASE_URL}`,
+          `🟢 Blox Sync Server: Running at ${BRIDGE_BASE_URL}`,
           `🎮 Roblox Studio: ${data.studioConnected ? 'CONNECTED' : 'DISCONNECTED (open Studio and connect plugin)'}`,
           `📁 Active Project: ${data.activeProject || 'DefaultProject'}`,
           `📄 Tracked Files: ${data.trackedFilesCount || 0}`,
@@ -711,10 +711,10 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 async function main() {
   const transport = new StdioServerTransport();
   await server.connect(transport);
-  console.error('[Roblox-MCP] Roblox Bridge MCP Server running on STDIO transport.');
+  console.error('[BloxSync-MCP] Blox Sync MCP Server running on STDIO transport.');
 }
 
 main().catch((err) => {
-  console.error('[Roblox-MCP] Fatal error starting server:', err);
+  console.error('[BloxSync-MCP] Fatal error starting server:', err);
   process.exit(1);
 });

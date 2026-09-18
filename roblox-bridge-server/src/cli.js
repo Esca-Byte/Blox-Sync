@@ -4,7 +4,7 @@ const readline = require('readline');
 const path = require('path');
 const os = require('os');
 const fs = require('fs-extra');
-const RobloxBridgeServer = require('./server');
+const BloxSyncServer = require('./server');
 
 function getDefaultDocumentsDir() {
   const home = process.env.USERPROFILE || os.homedir();
@@ -40,7 +40,7 @@ async function main() {
   if (cmdProjectName) {
     const cleanName = cmdProjectName.trim();
     console.log(`\nCreating/Selecting project '${cleanName}' in ${BASE_PROJECTS_DIR}...`);
-    const server = new RobloxBridgeServer({
+    const server = new BloxSyncServer({
       baseProjectsDir: BASE_PROJECTS_DIR,
       activeProjectName: cleanName
     });
@@ -50,7 +50,7 @@ async function main() {
 
   console.log(`
 =================================================
-  🎮 Roblox Universal IDE Bridge CLI v2.0.0
+  ⚡ Blox Sync CLI v2.2.0
 =================================================
   IDE-Agnostic Roblox Sync Engine
   Projects Directory: ${BASE_PROJECTS_DIR}
@@ -62,7 +62,7 @@ async function main() {
 
   if (existingProjects.length === 0) {
     console.log(`No existing projects found. Creating 'MyRobloxGame'...`);
-    const server = new RobloxBridgeServer({
+    const server = new BloxSyncServer({
       baseProjectsDir: BASE_PROJECTS_DIR,
       activeProjectName: 'MyRobloxGame'
     });
@@ -95,7 +95,7 @@ async function main() {
       rl2.question('Enter new project name: ', async (projName) => {
         rl2.close();
         const cleanName = projName.trim() || 'NewRobloxProject';
-        const server = new RobloxBridgeServer({
+        const server = new BloxSyncServer({
           baseProjectsDir: BASE_PROJECTS_DIR,
           activeProjectName: cleanName
         });
@@ -109,7 +109,7 @@ async function main() {
       selectedProject = existingProjects[num - 1];
     }
 
-    const server = new RobloxBridgeServer({
+    const server = new BloxSyncServer({
       baseProjectsDir: BASE_PROJECTS_DIR,
       activeProjectName: selectedProject
     });

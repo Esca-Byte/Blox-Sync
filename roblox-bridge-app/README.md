@@ -1,14 +1,14 @@
-﻿# 🖥️ Roblox Universal IDE Bridge — Desktop Application v2.2.0
+# 🖥️ Blox Sync — Desktop Application v2.2.0
 
 > Created by **[Esca-Byte](https://github.com/Esca-Byte)**
 
-A modern, native Desktop GUI Dashboard and Synchronization Engine for the **Roblox Universal IDE Bridge**.
+A modern, native Desktop GUI Dashboard and Synchronization Engine for **Blox Sync**.
 
 ---
 
 ## ✨ Features & What's New in v2.2.0
 
-- 💾 **Persistent Project Memory**: Remembers your last active project across launches via `bridge-config.json`.
+- 💾 **Persistent Project Memory**: Remembers your last active project across launches via `blox-sync-config.json`.
 - 📁 **Project Management**:
   - **Create Project**: Choose between **Standard** Rojo project and **Knit Framework** (inspired by SuperbulletFrameworkV1-Knit).
   - **Rename Project**: Rename projects in-place directly from the UI toolbar.
@@ -38,7 +38,7 @@ A modern, native Desktop GUI Dashboard and Synchronization Engine for the **Robl
 ### Option 1: Compiled Executable (No Node.js Required)
 Run `start-app.bat` or launch:
 ```
-roblox-bridge-app/dist/RobloxBridgeApp.exe
+roblox-bridge-app/dist/BloxSyncApp.exe
 ```
 
 ### Option 2: Run via Node.js
@@ -57,4 +57,4 @@ cd roblox-bridge-app
 npm install
 npm run build-exe
 ```
-Or simply double-click `build-exe.bat`. The standalone portable Windows executable will be compiled into `dist/RobloxBridgeApp.exe`.
+Or simply double-click `build-exe.bat`. The standalone portable Windows executable will be compiled into `dist/BloxSyncApp.exe`.

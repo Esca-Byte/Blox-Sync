@@ -1,15 +1,17 @@
 {
-  "name": "roblox-mcp-server",
+  "name": "blox-sync-mcp-server",
   "version": "1.0.0",
-  "description": "Model Context Protocol (MCP) Server for Roblox Universal IDE Bridge",
+  "description": "Model Context Protocol (MCP) Server for Blox Sync",
   "main": "src/index.js",
   "bin": {
+    "blox-sync-mcp": "./src/index.js",
     "roblox-mcp-server": "./src/index.js"
   },
   "scripts": {
     "start": "node src/index.js"
   },
   "keywords": [
+    "blox-sync",
     "mcp",
     "model-context-protocol",
     "roblox",

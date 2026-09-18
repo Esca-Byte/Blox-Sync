@@ -1,9 +1,10 @@
 {
-  "name": "roblox-bridge-server",
+  "name": "blox-sync-server",
   "version": "2.0.0",
-  "description": "IDE-agnostic bridge server for syncing Roblox Studio with any IDE/editor",
+  "description": "IDE-agnostic sync server for syncing Roblox Studio with any IDE/editor (Blox Sync)",
   "main": "src/server.js",
   "bin": {
+    "blox-sync": "src/cli.js",
     "roblox-bridge": "src/cli.js"
   },
   "scripts": {
@@ -11,6 +12,7 @@
     "cli": "node src/cli.js"
   },
   "keywords": [
+    "blox-sync",
     "roblox",
     "rojo",
     "bridge",

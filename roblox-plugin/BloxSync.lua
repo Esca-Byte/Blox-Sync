@@ -1,11 +1,11 @@
 --[[
     ====================================================================
-    🔗 Roblox Universal IDE Bridge — Studio Plugin (v2.1.0)
+    ⚡ Blox Sync — Studio Plugin (v2.2.0)
     ====================================================================
     Real-time two-way sync with any external IDE (VS Code, Cursor, 
-    JetBrains, Neovim, Sublime, Antigravity, etc.) via Universal Bridge.
+    JetBrains, Neovim, Sublime, Antigravity, etc.) via Blox Sync.
 
-    PATH B ADDITIONS (v2.1):
+    PATH B ADDITIONS (v2.1+):
       • Luau Execution Engine  — run code from IDE directly in Studio
       • DataModel Tree Export  — live game hierarchy → Desktop App
       • LogService Streaming   — print/warn/error → Desktop App console
@@ -57,7 +57,7 @@ local SERVICE_MAP = {
 -- ── Helpers ──────────────────────────────────────────────────────────────────
 local function log(message, level)
     level = level or "INFO"
-    local prefix = "[RobloxBridge] "
+    local prefix = "[BloxSync] "
     if level == "ERROR" then
         warn(prefix .. "❌ " .. message)
     elseif level == "WARN" then
@@ -139,7 +139,7 @@ local function findScriptByGuid(guid)
     if not guid or guid == "" then return nil end
     for _, service in pairs(SERVICE_MAP) do
         for _, descendant in ipairs(service:GetDescendants()) do
-            if descendant:IsA("LuaSourceContainer") and descendant:GetAttribute("BridgeGUID") == guid then
+            if descendant:IsA("LuaSourceContainer") and (descendant:GetAttribute("BloxSyncGUID") == guid or descendant:GetAttribute("BridgeGUID") == guid) then
                 return descendant
             end
         end
@@ -216,6 +216,7 @@ local function applyScriptChange(changeData)
                 targetScript.Source = changeData.content
             end
             if guid then
+                targetScript:SetAttribute("BloxSyncGUID", guid)
                 targetScript:SetAttribute("BridgeGUID", guid)
             end
             log("Renamed script: " .. (changeData.oldRelPath or "file") .. " -> " .. (scriptInfo.fullRobloxPath or scriptName) .. " (preserved GUID)", "INFO")
@@ -233,6 +234,7 @@ local function applyScriptChange(changeData)
 
     -- Tag with GUID attribute
     if guid then
+        existingScript:SetAttribute("BloxSyncGUID", guid)
         existingScript:SetAttribute("BridgeGUID", guid)
     end
 
@@ -382,8 +384,8 @@ end
 
 -- Hook LogService.MessageOut to capture Studio print/warn/error
 LogService.MessageOut:Connect(function(message, messageType)
-    -- Skip our own bridge log messages to avoid feedback loops
-    if string.find(message, "%[RobloxBridge%]") then return end
+    -- Skip our own sync log messages to avoid feedback loops
+    if string.find(message, "%[BloxSync%]") or string.find(message, "%[RobloxBridge%]") then return end
 
     local level = "Print"
     if messageType == Enum.MessageType.MessageWarning then
@@ -429,15 +431,15 @@ end
 -- Plugin GUI & Toolbar Setup
 -- ═══════════════════════════════════════════════════════════════════════════
 
-local toolbar     = plugin:CreateToolbar("Roblox Universal Bridge")
+local toolbar     = plugin:CreateToolbar("Blox Sync")
 local statusButton = toolbar:CreateButton("Status Widget", "Toggle status dashboard UI", "rbxassetid://6031097225")
 
 local widgetInfo = DockWidgetPluginGuiInfo.new(
     Enum.InitialDockState.Right,
     false, false, 320, 520, 260, 380
 )
-local widget = plugin:CreateDockWidgetPluginGui("RobloxBridgeWidget", widgetInfo)
-widget.Title = "Roblox Universal IDE Bridge v2.1"
+local widget = plugin:CreateDockWidgetPluginGui("BloxSyncWidget", widgetInfo)
+widget.Title = "Blox Sync v2.2"
 
 -- Main frame
 local mainFrame = Instance.new("Frame")
@@ -469,7 +471,7 @@ local titleLabel = Instance.new("TextLabel")
 titleLabel.Size = UDim2.new(1, -20, 1, 0)
 titleLabel.Position = UDim2.new(0, 10, 0, 0)
 titleLabel.BackgroundTransparency = 1
-titleLabel.Text = "⚡ Universal IDE Bridge v2.1"
+titleLabel.Text = "⚡ Blox Sync v2.2"
 titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 titleLabel.Font = Enum.Font.GothamBold
 titleLabel.TextSize = 15
@@ -521,7 +523,7 @@ filesText.Parent = statusCard
 local uiConnectBtn = Instance.new("TextButton")
 uiConnectBtn.Size = UDim2.new(1, 0, 0, 36)
 uiConnectBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 255)
-uiConnectBtn.Text = "Connect to Bridge Server"
+uiConnectBtn.Text = "Connect to Blox Sync Server"
 uiConnectBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 uiConnectBtn.Font = Enum.Font.GothamBold
 uiConnectBtn.TextSize = 14
@@ -616,7 +618,7 @@ local function updateUI()
         statusText.TextColor3 = Color3.fromRGB(240, 90, 90)
         projectText.Text = "Project: Disconnected"
         filesText.Text = "Tracked Files: 0"
-        uiConnectBtn.Text = "Connect to Bridge Server"
+        uiConnectBtn.Text = "Connect to Blox Sync Server"
         uiConnectBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 255)
         pathBStatus.Text = "Luau Runner: Idle | Console: Idle"
         pathBStatus.TextColor3 = Color3.fromRGB(120, 120, 130)
@@ -641,7 +643,7 @@ local function pullAllFiles()
                 guid       = fileData.guid
             })
         end
-        ChangeHistoryService:SetWaypoint("Pulled files from IDE Bridge")
+        ChangeHistoryService:SetWaypoint("Pulled files from Blox Sync")
         log("Successfully pulled " .. #response.files .. " files!", "INFO")
         updateUI()
     else
@@ -662,7 +664,7 @@ local function exportGameScripts()
                     scriptName     = child.Name,
                     scriptType     = child.ClassName,
                     content        = child.Source,
-                    guid           = child:GetAttribute("BridgeGUID")
+                    guid           = child:GetAttribute("BloxSyncGUID") or child:GetAttribute("BridgeGUID")
                 })
             elseif (child:IsA("ScreenGui") or child:IsA("LayerCollector")) and child.Parent:IsA("StarterGui") then
                 local hasScript = false
@@ -712,7 +714,7 @@ local function pollChanges()
             for _, change in ipairs(response.changes) do
                 applyScriptChange(change)
             end
-            ChangeHistoryService:SetWaypoint("Synced changes from IDE")
+            ChangeHistoryService:SetWaypoint("Synced changes from Blox Sync")
         end
         updateUI()
     else
@@ -727,10 +729,10 @@ end
 local function toggleConnection()
     if isConnected then
         isConnected = false
-        log("Disconnected from bridge server.", "INFO")
+        log("Disconnected from Blox Sync server.", "INFO")
         updateUI()
     else
-        log("Connecting to bridge server at " .. CONFIG.serverUrl .. "...", "INFO")
+        log("Connecting to Blox Sync server at " .. CONFIG.serverUrl .. "...", "INFO")
         local success, response = httpRequest("/heartbeat", "POST", { timestamp = os.time() })
         if success then
             isConnected       = true
@@ -758,7 +760,7 @@ statusButton.Click:Connect(function() widget.Enabled = not widget.Enabled end)
 
 uiRunnerBtn.MouseButton1Click:Connect(function()
     if not isConnected then
-        log("Cannot run Luau: not connected to bridge server.", "WARN")
+        log("Cannot run Luau: not connected to Blox Sync server.", "WARN")
         return
     end
     log("Manually polling execute queue...", "INFO")
@@ -825,4 +827,4 @@ if CONFIG.autoConnect then
     end)
 end
 
-log("Roblox Universal IDE Bridge Plugin v2.1 loaded — Luau Runner + Tree Inspector + Console Streaming active!", "INFO")
+log("Blox Sync Plugin v2.2 loaded — Luau Runner + Tree Inspector + Console Streaming active!", "INFO")

@@ -1,6 +1,6 @@
-﻿const { app, BrowserWindow, shell } = require('electron');
+const { app, BrowserWindow, shell } = require('electron');
 const path = require('path');
-const RobloxBridgeAppServer = require('../server/appServer');
+const BloxSyncAppServer = require('../server/appServer');
 
 let mainWindow = null;
 let appServer = null;
@@ -8,7 +8,7 @@ let appServer = null;
 async function createWindow() {
   // 1. Boot Backend Server Engine
   try {
-    appServer = new RobloxBridgeAppServer({ port: 7777 });
+    appServer = new BloxSyncAppServer({ port: 7777 });
     await appServer.start();
   } catch (err) {
     console.error('[Electron] Server init warning:', err.message);
@@ -21,7 +21,7 @@ async function createWindow() {
     minWidth: 760,
     minHeight: 480,
     backgroundColor: '#0f1117',
-    title: 'Roblox Universal IDE Bridge v2.2',
+    title: 'Blox Sync v2.2',
     autoHideMenuBar: true,
     show: false,
     webPreferences: {

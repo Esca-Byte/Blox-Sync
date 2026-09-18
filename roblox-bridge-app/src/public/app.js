@@ -107,7 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
     ws = new WebSocket(wsUrl);
 
     ws.onopen = () => {
-      appendConsoleLog('Connected to Roblox Bridge WebSocket Server', 'info');
+      appendConsoleLog('Connected to Blox Sync WebSocket Server', 'info');
       setWsBadge('connected');
     };
 
@@ -433,7 +433,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const url  = URL.createObjectURL(blob);
     const a    = document.createElement('a');
     a.href     = url;
-    a.download = `roblox-bridge-log-${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.txt`;
+    a.download = `blox-sync-log-${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.txt`;
     a.click();
     URL.revokeObjectURL(url);
     showToast('📄 Log exported', 'success');

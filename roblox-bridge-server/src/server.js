@@ -27,7 +27,7 @@ function getDefaultProjectsDir() {
   return path.join(getDefaultDocumentsDir(), 'RobloxProjects');
 }
 
-class RobloxBridgeServer {
+class BloxSyncServer {
   constructor(options = {}) {
     this.port = options.port || 7777;
     this.baseProjectsDir = options.baseProjectsDir || getDefaultProjectsDir();
@@ -61,7 +61,7 @@ class RobloxBridgeServer {
     return new Promise((resolve) => {
       this.server.listen(this.port, () => {
         console.log(`\n=================================================`);
-        console.log(`🚀 Roblox Universal IDE Bridge Server v2.0.0`);
+        console.log(`⚡ Blox Sync Server v2.2.0`);
         console.log(`=================================================`);
         console.log(`📡 Listening on: http://localhost:${this.port}`);
         console.log(`📁 Projects Folder: ${this.baseProjectsDir}`);
@@ -319,7 +319,7 @@ class RobloxBridgeServer {
 
     // Health & Info
     this.app.get('/', (req, res) => {
-      res.json({ status: 'ok', server: 'Roblox Universal IDE Bridge Server', version: '2.0.0' });
+      res.json({ status: 'ok', server: 'Blox Sync Server', version: '2.2.0' });
     });
 
     this.app.get('/status', (req, res) => {
@@ -563,8 +563,10 @@ class RobloxBridgeServer {
 }
 
 if (require.main === module) {
-  const server = new RobloxBridgeServer();
+  const server = new BloxSyncServer();
   server.start().catch(console.error);
 }
 
-module.exports = RobloxBridgeServer;
+BloxSyncServer.BloxSyncServer = BloxSyncServer;
+BloxSyncServer.RobloxBridgeServer = BloxSyncServer;
+module.exports = BloxSyncServer;

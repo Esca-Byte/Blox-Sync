@@ -1,7 +1,7 @@
-# 📖 Roblox Universal IDE Bridge — Comprehensive Usage & Testing Guide (v2.2.0)
+# 📖 Blox Sync — Comprehensive Usage & Testing Guide (v2.2.0)
 
 > Developed by **[Esca-Byte](https://github.com/Esca-Byte)**  
-> Next-generation two-way bridge connecting external IDEs (**Antigravity, VS Code, Cursor, JetBrains, Neovim, etc.**) with **Roblox Studio**.
+> Next-generation two-way sync connecting external IDEs (**Antigravity, VS Code, Cursor, JetBrains, Neovim, etc.**) with **Roblox Studio** via **Blox Sync**.
 
 ---
 
@@ -38,7 +38,7 @@
 1. Open the repository root.
 2. Double-click **`install.bat`** (or run `.\install.bat` in CMD/PowerShell).
 3. `install.bat` will automatically:
-   - Copy `RobloxBridge.lua` to `%LOCALAPPDATA%\Roblox\Plugins\`
+   - Copy `BloxSync.lua` to `%LOCALAPPDATA%\Roblox\Plugins\`
    - Set up your default projects directory (`Documents\RobloxProjects`)
    - Install required dependencies for the Desktop App, Server, and MCP AI Agent
 
@@ -53,15 +53,15 @@
 3. Toggle **"Allow HTTP Requests"** to **ON**.
 4. Click **Save**.
 
-### Step 2: Start the Bridge
+### Step 2: Start Blox Sync
 You can launch either:
 - **Desktop Dashboard App**:
   ```bash
   cd roblox-bridge-app
   npm start
   ```
-- **CLI Bridge Server**:
-  Double-click `start-bridge.bat` or run:
+- **CLI Sync Server**:
+  Double-click `start-bloxsync.bat` or run:
   ```bash
   cd roblox-bridge-server
   npm start
@@ -69,8 +69,8 @@ You can launch either:
 
 ### Step 3: Connect Roblox Studio
 1. In Studio, click the **Plugins** tab on the top ribbon.
-2. Under **Roblox Universal Bridge**, click **Status Widget**.
-3. In the floating dock widget, click **Connect to Bridge Server**.
+2. Under **Blox Sync**, click **Status Widget**.
+3. In the floating dock widget, click **Connect to Blox Sync Server**.
 4. The status pill will turn **🟢 Connected**.
 
 ---
@@ -121,11 +121,11 @@ The Desktop App UI (`http://localhost:7777`) gives you complete visibility and c
 ---
 
 ### Feature 3: File Rename & GUID Tracking (.meta.json)
-- **What it does**: Renaming a file previously deleted and recreated the script in Studio, changing its instance identity and breaking active `require()` chains. The bridge now tracks every script with a persistent UUID (`BridgeGUID`) stored in sidecar `.meta.json` files.
+- **What it does**: Renaming a file previously deleted and recreated the script in Studio, changing its instance identity and breaking active `require()` chains. Blox Sync tracks every script with a persistent UUID (`BloxSyncGUID` / `BridgeGUID`) stored in sidecar `.meta.json` files.
 - **How to use**:
   - Rename or move any script file in your IDE (e.g. `OldService.luau` → `NewService.luau`).
   - The server detects the rename via content matching and copies `.meta.json`.
-  - The Studio plugin finds the script instance by `BridgeGUID` and renames/moves it **in place** without destroying it.
+  - The Studio plugin finds the script instance by GUID and renames/moves it **in place** without destroying it.
   - All existing table references and `require()` calls remain intact!
 
 ---
@@ -142,8 +142,8 @@ The Desktop App UI (`http://localhost:7777`) gives you complete visibility and c
 ### Feature 5: TypeScript / roblox-ts Compiler
 - **What it does**: Supports TypeScript Roblox development using `roblox-ts` (`rbxtsc`).
 - **How to use**:
-  1. If a `tsconfig.json` exists in the project, the bridge automatically flags it as a TypeScript project.
-  2. Whenever any `.ts` file is saved, the bridge watcher automatically runs `npx rbxtsc --watch=false`.
+  1. If a `tsconfig.json` exists in the project, Blox Sync automatically flags it as a TypeScript project.
+  2. Whenever any `.ts` file is saved, the Blox Sync watcher automatically runs `npx rbxtsc --watch=false`.
   3. You can also click **⚡ Compile TS** at any time.
   4. The stats bar displays compile progress (`Compiling…` → `Build OK` or `Build Error`).
 
@@ -219,11 +219,11 @@ Follow these simple manual steps to test each feature in your own workspace:
    return ModuleA
    ```
 2. Save it. Notice `src/ReplicatedStorage/ModuleA.luau.meta.json` is created with a `guid`.
-3. In Studio, check `ReplicatedStorage.ModuleA`: it has attribute `BridgeGUID`.
+3. In Studio, check `ReplicatedStorage.ModuleA`: it has attribute `BloxSyncGUID` (and `BridgeGUID`).
 4. In your IDE, rename `ModuleA.luau` to `ModuleRenamed.luau`.
 5. Switch to Studio:
    - Notice the script was renamed to `ModuleRenamed` **without being destroyed**.
-   - Notice its `BridgeGUID` attribute is preserved.
+   - Notice its GUID attributes are preserved.
 
 ---
 
@@ -327,15 +327,15 @@ Documents\RobloxProjects\<ProjectName>\
 ## 🔧 Troubleshooting & FAQ
 
 #### Q: Where is the Desktop App running?
-Open `http://localhost:7777` in your browser, or launch the Electron app with `npm start` in `roblox-bridge-app`.
+Open `http://localhost:7777` in your browser, or launch the Electron app with `npm start` in `roblox-bridge-app` (or launch `BloxSyncApp.exe`).
 
 #### Q: Studio says "Connection failed" or "Offline"
 1. Verify `Allow HTTP Requests` is enabled in Studio (**Game Settings → Security**).
-2. Check that the bridge app/server is running on port `7777`.
+2. Check that the Blox Sync app/server is running on port `7777`.
 3. Check that Windows Firewall isn't blocking port `7777`.
 
 #### Q: Where are `.meta.json` files generated?
 `.meta.json` files are automatically generated alongside your scripts in `src/`. They store persistent GUIDs so that file renames don't delete and recreate scripts in Roblox Studio. You can commit these `.meta.json` files to Git.
 
 #### Q: Can I use Antigravity / Cursor / VS Code simultaneously?
-Yes! The bridge is editor-agnostic. Any editor that modifies files in your project directory will trigger real-time sync with Roblox Studio.
+Yes! Blox Sync is editor-agnostic. Any editor that modifies files in your project directory will trigger real-time sync with Roblox Studio.
