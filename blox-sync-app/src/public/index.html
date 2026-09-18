@@ -12,6 +12,47 @@
 </head>
 <body>
   <div class="app-container">
+    <!-- Frameless Custom Titlebar (Native Window Chrome) -->
+    <div class="window-titlebar" id="windowTitlebar">
+      <div class="titlebar-left">
+        <div class="titlebar-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+          </svg>
+        </div>
+        <span class="titlebar-app-name">Blox Sync</span>
+        <span class="titlebar-badge">v2.2</span>
+        <span class="titlebar-divider">/</span>
+        <span id="titlebarProjectName" class="titlebar-project">DefaultProject</span>
+      </div>
+
+      <div class="titlebar-center">
+        <span class="titlebar-drag-label">Blox Sync Desktop</span>
+      </div>
+
+      <div class="titlebar-right">
+        <!-- Live Studio Status Indicator -->
+        <div class="titlebar-studio-indicator" id="titlebarStudioIndicator" title="Roblox Studio Connection Status">
+          <span class="pulse-dot offline" id="titlebarPulse"></span>
+          <span id="titlebarStudioText" class="titlebar-studio-text">Studio: Offline</span>
+        </div>
+
+        <!-- Native Window Controls -->
+        <div class="window-controls" id="windowControls">
+          <button id="btnWinMin" class="win-btn win-btn-min" title="Minimize Window" aria-label="Minimize">
+            <svg viewBox="0 0 12 12"><line x1="1.5" y1="6" x2="10.5" y2="6" stroke="currentColor" stroke-width="1.2"></line></svg>
+          </button>
+          <button id="btnWinMax" class="win-btn win-btn-max" title="Maximize Window" aria-label="Maximize">
+            <svg class="icon-max" viewBox="0 0 12 12"><rect x="2" y="2" width="8" height="8" fill="none" stroke="currentColor" stroke-width="1.2"></rect></svg>
+            <svg class="icon-restore" viewBox="0 0 12 12" style="display:none"><rect x="3.5" y="1.5" width="7" height="7" fill="none" stroke="currentColor" stroke-width="1.1"></rect><polygon points="1.5,3.5 1.5,10.5 8.5,10.5 8.5,8.5 3.5,8.5 3.5,3.5" fill="none" stroke="currentColor" stroke-width="1.1"></polygon></svg>
+          </button>
+          <button id="btnWinClose" class="win-btn win-btn-close" title="Close" aria-label="Close">
+            <svg viewBox="0 0 12 12"><line x1="2" y1="2" x2="10" y2="10" stroke="currentColor" stroke-width="1.2"></line><line x1="10" y1="2" x2="2" y2="10" stroke="currentColor" stroke-width="1.2"></line></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- Top Navigation Header -->
     <header class="app-header">
       <div class="brand">
@@ -290,8 +331,16 @@
               <span id="consoleStatusPill" class="badge badge-success">WS Connected</span>
             </div>
             <div class="panel-actions">
-              <button id="btnExportLog" class="btn btn-sm btn-ghost" title="Export console log as .txt">Export Log</button>
-              <button id="btnClearConsole" class="btn btn-sm btn-ghost">Clear Log</button>
+              <!-- Filter chips -->
+              <div class="console-filter-group" id="consoleFilterGroup">
+                <button class="filter-chip active" data-filter="all">All</button>
+                <button class="filter-chip" data-filter="print">Prints</button>
+                <button class="filter-chip" data-filter="warn">Warns</button>
+                <button class="filter-chip" data-filter="error">Errors</button>
+              </div>
+              <button id="btnCopyConsole" class="btn btn-sm btn-ghost" title="Copy visible logs">Copy</button>
+              <button id="btnExportLog" class="btn btn-sm btn-ghost" title="Export console log as .txt">Export</button>
+              <button id="btnClearConsole" class="btn btn-sm btn-ghost">Clear</button>
             </div>
           </div>
           <div class="panel-body">
@@ -310,6 +359,19 @@
               <span id="runnerStatusPill" class="badge badge-warn">Studio Required</span>
             </div>
             <div class="panel-actions">
+              <!-- Quick Snippets Picker -->
+              <div class="snippet-picker-wrapper">
+                <select id="runnerSnippetSelect" class="select-input select-sm" title="Insert Luau Snippet Template">
+                  <option value="" disabled selected>⚡ Luau Snippets...</option>
+                  <option value="inspect_workspace">Inspect Workspace Children</option>
+                  <option value="spawn_part">Spawn Glowing Neon Part</option>
+                  <option value="list_players">List Active Players</option>
+                  <option value="server_uptime">Print Server Time & Stats</option>
+                  <option value="services_list">Audit Top-Level Services</option>
+                  <option value="benchmark">Benchmark 100k Operations</option>
+                </select>
+              </div>
+              <button id="btnCopyRunnerOutput" class="btn btn-sm btn-ghost" title="Copy Output to Clipboard">Copy Output</button>
               <button id="btnClearRunner" class="btn btn-sm btn-ghost">Clear Output</button>
             </div>
           </div>
@@ -350,6 +412,11 @@
               <span id="explorerTimestamp" class="badge badge-info">No snapshot</span>
             </div>
             <div class="panel-actions">
+              <div class="search-input-wrapper">
+                <input type="text" id="explorerSearchInput" class="text-input text-input-sm" placeholder="Filter hierarchy...">
+              </div>
+              <button id="btnExpandAllTree" class="btn btn-sm btn-ghost" title="Expand All Nodes">Expand All</button>
+              <button id="btnCollapseAllTree" class="btn btn-sm btn-ghost" title="Collapse All Nodes">Collapse All</button>
               <button id="btnRefreshTree" class="btn btn-sm btn-ghost" title="Request a fresh DataModel snapshot from Studio">Refresh</button>
             </div>
           </div>

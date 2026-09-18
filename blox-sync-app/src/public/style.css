@@ -1931,3 +1931,275 @@ body {
 
 #btnWallyInstall.loading { opacity: 0.7; pointer-events: none; }
 
+/* ════════════════════════════════════════════════════════════════════════════
+   CUSTOM FRAMELESS DESKTOP TITLEBAR & WINDOW CHROME (Electron frame: false)
+   ════════════════════════════════════════════════════════════════════════════ */
+
+.window-titlebar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 38px;
+  background: rgba(12, 14, 20, 0.96);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  padding: 0 0 0 14px;
+  user-select: none;
+  -webkit-app-region: drag;
+  z-index: 9999;
+  flex-shrink: 0;
+}
+
+.titlebar-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  -webkit-app-region: no-drag;
+}
+
+.titlebar-icon {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 8px rgba(0, 144, 255, 0.4);
+}
+
+.titlebar-icon svg {
+  width: 13px;
+  height: 13px;
+  stroke: #ffffff;
+}
+
+.titlebar-app-name {
+  font-size: 12px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 0.3px;
+}
+
+.titlebar-badge {
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--accent-blue);
+  background: rgba(0, 144, 255, 0.15);
+  border: 1px solid rgba(0, 144, 255, 0.3);
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+
+.titlebar-divider {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.2);
+}
+
+.titlebar-project {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--text-secondary);
+  max-width: 180px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.titlebar-center {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-app-region: drag;
+}
+
+.titlebar-drag-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.2);
+  letter-spacing: 0.5px;
+}
+
+.titlebar-right {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  -webkit-app-region: no-drag;
+}
+
+.titlebar-studio-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px;
+  margin-right: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  transition: all 0.2s ease;
+}
+
+.titlebar-studio-indicator:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+/* Native Window Controls */
+.window-controls {
+  display: none; /* Hidden by default in web browsers */
+  align-items: center;
+  height: 100%;
+}
+
+body.is-electron .window-controls {
+  display: flex; /* Displayed inside native Electron app */
+}
+
+.win-btn {
+  width: 46px;
+  height: 100%;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  outline: none;
+  transition: background-color 0.12s ease, color 0.12s ease;
+}
+
+.win-btn:hover {
+  background: rgba(255, 255, 255, 0.09);
+  color: #ffffff;
+}
+
+.win-btn-close:hover {
+  background: #e81123 !important;
+  color: #ffffff !important;
+}
+
+.win-btn-close:active {
+  background: #bf0f1d !important;
+}
+
+.win-btn svg {
+  width: 11px;
+  height: 11px;
+  stroke: currentColor;
+}
+
+/* Frameless desktop container border */
+body.is-electron {
+  background-color: #0c0e14;
+}
+
+body.is-electron .app-container {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   CONSOLE FILTER CHIPS & CONTROLS
+   ════════════════════════════════════════════════════════════════════════════ */
+
+.console-filter-group {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  margin-right: 4px;
+}
+
+.filter-chip {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  border-radius: 12px;
+  padding: 2px 9px;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.filter-chip:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+}
+
+.filter-chip.active {
+  background: rgba(0, 144, 255, 0.2);
+  border-color: var(--accent-blue);
+  color: #ffffff;
+  font-weight: 600;
+  box-shadow: 0 0 8px rgba(0, 144, 255, 0.25);
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   LUAU RUNNER SNIPPET SELECTOR & COPY BUTTON
+   ════════════════════════════════════════════════════════════════════════════ */
+
+.snippet-picker-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.snippet-picker-wrapper select {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 3px 22px 3px 8px;
+  height: 27px;
+  border-radius: var(--radius-sm);
+  background: rgba(18, 22, 34, 0.9);
+  border: 1px solid var(--border-color);
+  color: var(--accent-blue);
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.snippet-picker-wrapper select:hover {
+  border-color: rgba(0, 144, 255, 0.5);
+  background: rgba(24, 30, 46, 0.95);
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   GAME EXPLORER SEARCH & CONTROLS
+   ════════════════════════════════════════════════════════════════════════════ */
+
+.search-input-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.search-input-wrapper input {
+  height: 27px;
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: var(--radius-sm);
+  background: rgba(18, 22, 34, 0.9);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  width: 140px;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.search-input-wrapper input:focus {
+  width: 180px;
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 8px rgba(0, 144, 255, 0.3);
+}
+
+.search-input-wrapper input::placeholder {
+  color: var(--text-muted);
+}
+

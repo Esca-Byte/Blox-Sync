@@ -3,7 +3,7 @@
     "blox-sync": {
       "command": "node",
       "args": [
-        "c:/Users/sumnk/Downloads/roblox-vscode-bridge-main/roblox-mcp-server/src/index.js"
+        "c:/Users/sumnk/Downloads/roblox-vscode-bridge-main/blox-sync-mcp/src/index.js"
       ],
       "env": {
         "BLOX_SYNC_URL": "http://localhost:7777"

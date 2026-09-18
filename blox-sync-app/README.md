@@ -38,12 +38,12 @@ A modern, native Desktop GUI Dashboard and Synchronization Engine for **Blox Syn
 ### Option 1: Compiled Executable (No Node.js Required)
 Run `start-app.bat` or launch:
 ```
-roblox-bridge-app/dist/BloxSyncApp.exe
+blox-sync-app/dist/BloxSyncApp.exe
 ```
 
 ### Option 2: Run via Node.js
 ```bash
-cd roblox-bridge-app
+cd blox-sync-app
 npm install
 npm start
 ```
@@ -53,7 +53,7 @@ The native Electron window will appear automatically (also accessible via browse
 
 ## 🛠️ Building the Executable (.exe)
 ```bash
-cd roblox-bridge-app
+cd blox-sync-app
 npm install
 npm run build-exe
 ```

@@ -54,7 +54,7 @@ Run `install.bat` in the repository root. It automatically:
 3. Save.
 
 ### 3. Launch & Connect
-1. Double-click `BloxSyncApp.exe` (in `roblox-bridge-app/dist/`) or run `start-bloxsync.bat`.
+1. Double-click `BloxSyncApp.exe` (in `blox-sync-app/dist/`) or run `start-bloxsync.bat`.
 2. In Roblox Studio, click **Plugins** → **Blox Sync** → **Status Widget** → **Connect**.
 3. Edit code in your IDE — changes reflect instantly in Studio!
 
@@ -81,7 +81,7 @@ For detailed step-by-step testing instructions, read the **[Complete Usage Guide
 
 ## 🤖 AI Agent Integration (MCP Server)
 
-Blox Sync includes a built-in **Model Context Protocol (MCP)** server (`roblox-mcp-server`), allowing AI assistants like **Antigravity**, **Cursor**, or **Claude Desktop** to autonomously interact with Roblox Studio:
+Blox Sync includes a built-in **Model Context Protocol (MCP)** server (`blox-sync-mcp`), allowing AI assistants like **Antigravity**, **Cursor**, or **Claude Desktop** to autonomously interact with Roblox Studio:
 
 - `roblox_start_playtest` — AI starts Play Solo or Server + Player playtests directly.
 - `roblox_stop_playtest` — AI stops playtests and returns Studio to edit mode.
@@ -93,7 +93,7 @@ Blox Sync includes a built-in **Model Context Protocol (MCP)** server (`roblox-m
 - `roblox_launch_studio` — AI launches Roblox Studio on demand.
 - `roblox_get_status` — AI checks connection state and active project stats.
 
-See [mcp_config.example.json](mcp_config.example.json) and [roblox-mcp-server/README.md](roblox-mcp-server/README.md) for configuration.
+See [mcp_config.example.json](mcp_config.example.json) and [blox-sync-mcp/README.md](blox-sync-mcp/README.md) for configuration.
 
 ### 🧠 Built-In AI Skills Suite (`.agents/skills/`)
 The repository includes a comprehensive, modular Agent Skills suite (compatible with Antigravity and Cursor) mirroring and surpassing Roblox Studio's Assistant Skills:

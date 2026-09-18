@@ -57,13 +57,13 @@
 You can launch either:
 - **Desktop Dashboard App**:
   ```bash
-  cd roblox-bridge-app
+  cd blox-sync-app
   npm start
   ```
 - **CLI Sync Server**:
   Double-click `start-bloxsync.bat` or run:
   ```bash
-  cd roblox-bridge-server
+  cd blox-sync-server
   npm start
   ```
 
@@ -327,7 +327,7 @@ Documents\RobloxProjects\<ProjectName>\
 ## 🔧 Troubleshooting & FAQ
 
 #### Q: Where is the Desktop App running?
-Open `http://localhost:7777` in your browser, or launch the Electron app with `npm start` in `roblox-bridge-app` (or launch `BloxSyncApp.exe`).
+Open `http://localhost:7777` in your browser, or launch the Electron app with `npm start` in `blox-sync-app` (or launch `BloxSyncApp.exe`).
 
 #### Q: Studio says "Connection failed" or "Offline"
 1. Verify `Allow HTTP Requests` is enabled in Studio (**Game Settings → Security**).

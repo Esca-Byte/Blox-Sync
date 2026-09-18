@@ -22,7 +22,7 @@ if exist "%PLUGINS_DIR%\RobloxBridge.lua" (
 )
 
 echo  [1/4] Copying BloxSync.lua --^> Roblox Plugins...
-copy /Y "%~dp0roblox-plugin\BloxSync.lua" "%PLUGINS_DIR%\BloxSync.lua" >nul
+copy /Y "%~dp0blox-sync-plugin\BloxSync.lua" "%PLUGINS_DIR%\BloxSync.lua" >nul
 if errorlevel 1 (
     echo  ERROR: Could not copy plugin file. Close Roblox Studio and try again.
     pause & exit /b 1
@@ -45,10 +45,10 @@ echo         OK: %PROJECTS_DIR%
 :: 3. Install Server Dependencies
 echo.
 echo  [3/4] Installing bridge server dependencies...
-cd /d "%~dp0roblox-bridge-server"
+cd /d "%~dp0blox-sync-server"
 call npm install --no-audit >nul 2>&1
 if errorlevel 1 (
-    echo  WARNING: npm install returned an error in roblox-bridge-server.
+    echo  WARNING: npm install returned an error in blox-sync-server.
 ) else (
     echo         OK: Server dependencies installed successfully.
 )
@@ -56,10 +56,10 @@ if errorlevel 1 (
 :: 4. Install MCP Server Dependencies
 echo.
 echo  [4/4] Installing MCP Server (AI Agent) dependencies...
-cd /d "%~dp0roblox-mcp-server"
+cd /d "%~dp0blox-sync-mcp"
 call npm install --no-audit >nul 2>&1
 if errorlevel 1 (
-    echo  WARNING: npm install returned an error in roblox-mcp-server.
+    echo  WARNING: npm install returned an error in blox-sync-mcp.
 ) else (
     echo         OK: MCP Server dependencies installed successfully.
 )

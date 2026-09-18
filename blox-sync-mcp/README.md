@@ -33,7 +33,7 @@ The server is registered in your global Antigravity configuration at:
     "blox-sync": {
       "command": "node",
       "args": [
-        "c:/Users/sumnk/Downloads/roblox-vscode-bridge-main/roblox-mcp-server/src/index.js"
+        "c:/Users/sumnk/Downloads/roblox-vscode-bridge-main/blox-sync-mcp/src/index.js"
       ],
       "env": {
         "BLOX_SYNC_URL": "http://localhost:7777"
@@ -51,7 +51,7 @@ Add to your `mcp.json`:
     "blox-sync": {
       "command": "node",
       "args": [
-        "c:/Users/sumnk/Downloads/roblox-vscode-bridge-main/roblox-mcp-server/src/index.js"
+        "c:/Users/sumnk/Downloads/roblox-vscode-bridge-main/blox-sync-mcp/src/index.js"
       ]
     }
   }
@@ -65,7 +65,7 @@ Add to your `mcp.json`:
     "blox-sync": {
       "command": "node",
       "args": [
-        "c:/Users/sumnk/Downloads/roblox-vscode-bridge-main/roblox-mcp-server/src/index.js"
+        "c:/Users/sumnk/Downloads/roblox-vscode-bridge-main/blox-sync-mcp/src/index.js"
       ]
     }
   }
@@ -93,6 +93,6 @@ Add to your `mcp.json`:
 
 You can run the built-in MCP client verification test at any time:
 ```bash
-cd roblox-mcp-server
+cd blox-sync-mcp
 node test/test_mcp.js
 ```

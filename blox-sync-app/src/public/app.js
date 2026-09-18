@@ -86,6 +86,23 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnCancelDeleteModal    = document.getElementById('btnCancelDeleteModal');
   const btnConfirmDeleteProject = document.getElementById('btnConfirmDeleteProject');
 
+  // ── Frameless Titlebar & Window Chrome ──
+  const titlebarProjectName   = document.getElementById('titlebarProjectName');
+  const titlebarPulse         = document.getElementById('titlebarPulse');
+  const titlebarStudioText    = document.getElementById('titlebarStudioText');
+  const btnWinMin             = document.getElementById('btnWinMin');
+  const btnWinMax             = document.getElementById('btnWinMax');
+  const btnWinClose           = document.getElementById('btnWinClose');
+
+  // ── Enhanced Panel Actions ──
+  const runnerSnippetSelect   = document.getElementById('runnerSnippetSelect');
+  const btnCopyRunnerOutput   = document.getElementById('btnCopyRunnerOutput');
+  const btnCopyConsole        = document.getElementById('btnCopyConsole');
+  const consoleFilterGroup    = document.getElementById('consoleFilterGroup');
+  const explorerSearchInput   = document.getElementById('explorerSearchInput');
+  const btnExpandAllTree      = document.getElementById('btnExpandAllTree');
+  const btnCollapseAllTree    = document.getElementById('btnCollapseAllTree');
+
   // ─── State ──────────────────────────────────────────────────────────────
   let ws = null;
   let trackedFiles   = [];
@@ -93,8 +110,11 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentProject = '';
   let serverStartTime = null;
   let uptimeInterval  = null;
+  let activeConsoleFilter = 'all';
 
   // ─── Initialize ─────────────────────────────────────────────────────────
+  setupDesktopControls();
+  setupEnhancedUX();
   initWebSocket();
   fetchInitialData();
   setupEventListeners();
@@ -340,8 +360,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function updateStatusCards(data) {
-    if (data.activeProject && statActiveProject) {
-      statActiveProject.textContent = data.activeProject;
+    if (data.activeProject) {
+      if (statActiveProject) statActiveProject.textContent = data.activeProject;
+      if (titlebarProjectName) titlebarProjectName.textContent = data.activeProject;
     }
     if (data.trackedFilesCount !== undefined && statTrackedCount) {
       statTrackedCount.textContent = data.trackedFilesCount;
@@ -356,12 +377,16 @@ document.addEventListener('DOMContentLoaded', () => {
         statStudioStatus.className = 'stat-value status-online';
       }
       if (studioPulse) studioPulse.className = 'pulse-dot online';
+      if (titlebarPulse) titlebarPulse.className = 'pulse-dot online';
+      if (titlebarStudioText) titlebarStudioText.textContent = 'Studio: Connected';
     } else {
       if (statStudioStatus) {
         statStudioStatus.textContent = 'Disconnected';
         statStudioStatus.className = 'stat-value status-offline';
       }
       if (studioPulse) studioPulse.className = 'pulse-dot offline';
+      if (titlebarPulse) titlebarPulse.className = 'pulse-dot offline';
+      if (titlebarStudioText) titlebarStudioText.textContent = 'Studio: Offline';
     }
   }
 
@@ -384,6 +409,14 @@ document.addEventListener('DOMContentLoaded', () => {
         <span class="log-tag tag-${type}">${type}</span>
         <span class="log-message">${escapeHtml(msg)}</span>
       `;
+    }
+
+    if (activeConsoleFilter !== 'all') {
+      const isPrint = type === 'info' || type === 'sync' || type === 'print';
+      const show = (activeConsoleFilter === 'print' && isPrint) ||
+                   (activeConsoleFilter === 'warn' && type === 'warn') ||
+                   (activeConsoleFilter === 'error' && type === 'error');
+      entry.style.display = show ? '' : 'none';
     }
 
     consoleLog.appendChild(entry);
@@ -940,6 +973,12 @@ document.addEventListener('DOMContentLoaded', () => {
       <span class="log-message">${escapeHtml(entry.message || '')}</span>
     `;
     consoleLog.appendChild(el);
+    if (activeConsoleFilter !== 'all') {
+      const show = (activeConsoleFilter === 'print' && level === 'print') ||
+                   (activeConsoleFilter === 'warn' && (level === 'warn' || level === 'warning')) ||
+                   (activeConsoleFilter === 'error' && level === 'error');
+      el.style.display = show ? '' : 'none';
+    }
     consoleLog.scrollTop = consoleLog.scrollHeight;
     const allEntries = consoleLog.querySelectorAll('.log-entry');
     if (allEntries.length > 500) allEntries[0].remove();
@@ -1091,6 +1130,185 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       }
     } catch (e) { /* silent */ }
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Frameless Desktop Window Controls (Electron frame: false)
+  // ═══════════════════════════════════════════════════════════════════════════
+  function setupDesktopControls() {
+    if (window.bloxSyncDesktop && window.bloxSyncDesktop.isElectron) {
+      document.body.classList.add('is-electron');
+
+      const iconMax = btnWinMax?.querySelector('.icon-max');
+      const iconRestore = btnWinMax?.querySelector('.icon-restore');
+
+      btnWinMin?.addEventListener('click', () => {
+        window.bloxSyncDesktop.minimize();
+      });
+
+      btnWinMax?.addEventListener('click', () => {
+        window.bloxSyncDesktop.maximize();
+      });
+
+      btnWinClose?.addEventListener('click', () => {
+        window.bloxSyncDesktop.close();
+      });
+
+      window.bloxSyncDesktop.onMaximizedChange((isMax) => {
+        if (iconMax && iconRestore) {
+          iconMax.style.display = isMax ? 'none' : 'block';
+          iconRestore.style.display = isMax ? 'block' : 'none';
+        }
+      });
+
+      // Check initial maximized state
+      if (typeof window.bloxSyncDesktop.isMaximized === 'function') {
+        window.bloxSyncDesktop.isMaximized().then((isMax) => {
+          if (iconMax && iconRestore) {
+            iconMax.style.display = isMax ? 'none' : 'block';
+            iconRestore.style.display = isMax ? 'block' : 'none';
+          }
+        }).catch(() => {});
+      }
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Enhanced Developer UI/UX Features
+  // ═══════════════════════════════════════════════════════════════════════════
+  function setupEnhancedUX() {
+    // 1. Luau Runner Snippet Presets
+    const LUAU_SNIPPETS = {
+      inspect_workspace: `-- Inspect top-level Workspace instances\nprint("=== WORKSPACE INSPECTION ===")\nlocal children = workspace:GetChildren()\nprint("Total objects in Workspace:", #children)\nfor i, obj in ipairs(children) do\n    print(string.format("[%d] %s (%s)", i, obj.Name, obj.ClassName))\nend\nreturn #children\n`,
+      spawn_part: `-- Spawn an illuminated neon part\nlocal part = Instance.new("Part")\npart.Name = "BloxSyncGlowCube"\npart.Size = Vector3.new(4, 4, 4)\npart.Position = Vector3.new(0, 10, 0)\npart.Material = Enum.Material.Neon\npart.Color = Color3.fromRGB(0, 170, 255)\npart.Anchored = true\npart.Parent = workspace\nprint("Spawned glowing part at:", part.Position)\nreturn part:GetFullName()\n`,
+      list_players: `-- List active players in session\nlocal Players = game:GetService("Players")\nlocal playerList = Players:GetPlayers()\nprint("Active Players Count:", #playerList)\nfor i, player in ipairs(playerList) do\n    print(string.format("[%d] %s (UserId: %d)", i, player.Name, player.UserId))\nend\nreturn #playerList\n`,
+      server_uptime: `-- Print game time and memory metrics\nlocal Stats = game:GetService("Stats")\nlocal mem = Stats:GetTotalMemoryUsageMb()\nprint("Server Time:", os.date("%X"))\nprint(string.format("Total Memory Usage: %.1f MB", mem))\nprint("DataModel PlaceId:", game.PlaceId)\nreturn { mem = mem, placeId = game.PlaceId }\n`,
+      services_list: `-- List primary Roblox game services\nlocal serviceNames = {\n    "Workspace", "Players", "Lighting", "ReplicatedStorage",\n    "ServerScriptService", "ServerStorage", "StarterGui",\n    "StarterPack", "SoundService", "Chat"\n}\nfor _, name in ipairs(serviceNames) do\n    local ok, s = pcall(function() return game:GetService(name) end)\n    if ok and s then\n        print(string.format("✓ Service %-20s has %d children", name, #s:GetChildren()))\n    end\nend\n`,
+      benchmark: `-- Benchmark math/loop operation\nlocal start = os.clock()\nlocal sum = 0\nfor i = 1, 100000 do\n    sum = sum + math.sqrt(i)\nend\nlocal elapsed = (os.clock() - start) * 1000\nprint(string.format("Calculated 100,000 iterations in %.3f ms (sum = %.2f)", elapsed, sum))\nreturn elapsed\n`
+    };
+
+    if (runnerSnippetSelect) {
+      runnerSnippetSelect.addEventListener('change', () => {
+        const key = runnerSnippetSelect.value;
+        if (LUAU_SNIPPETS[key] && runnerCode) {
+          runnerCode.value = LUAU_SNIPPETS[key];
+          runnerSnippetSelect.value = '';
+          runnerCode.focus();
+          showToast('⚡ Luau snippet loaded into editor', 'info');
+        }
+      });
+    }
+
+    // 2. Luau Runner Copy Output Button
+    if (btnCopyRunnerOutput) {
+      btnCopyRunnerOutput.addEventListener('click', () => {
+        const text = runnerOutput?.innerText?.trim();
+        if (!text) {
+          showToast('Nothing to copy', 'info');
+          return;
+        }
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(text).then(() => {
+            showToast('📋 Output copied to clipboard', 'success');
+          }).catch(() => {
+            showToast('Failed to copy to clipboard', 'error');
+          });
+        }
+      });
+    }
+
+    // 3. Console Copy Visible Logs Button
+    if (btnCopyConsole) {
+      btnCopyConsole.addEventListener('click', () => {
+        if (!consoleLog) return;
+        const visibleEntries = Array.from(consoleLog.querySelectorAll('.log-entry')).filter(e => e.style.display !== 'none');
+        if (visibleEntries.length === 0) {
+          showToast('No logs to copy', 'info');
+          return;
+        }
+        const text = visibleEntries.map(e => e.innerText).join('\n');
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(text).then(() => {
+            showToast('📋 Logs copied to clipboard', 'success');
+          }).catch(() => {
+            showToast('Failed to copy to clipboard', 'error');
+          });
+        }
+      });
+    }
+
+    // 4. Console Filter Chips (All / Prints / Warns / Errors)
+    if (consoleFilterGroup) {
+      consoleFilterGroup.addEventListener('click', (e) => {
+        const chip = e.target.closest('.filter-chip');
+        if (!chip) return;
+        consoleFilterGroup.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        activeConsoleFilter = chip.dataset.filter || 'all';
+        applyConsoleFilter();
+      });
+    }
+
+    function applyConsoleFilter() {
+      if (!consoleLog) return;
+      const entries = consoleLog.querySelectorAll('.log-entry');
+      entries.forEach(entry => {
+        if (activeConsoleFilter === 'all') {
+          entry.style.display = '';
+        } else if (activeConsoleFilter === 'print') {
+          const isPrint = entry.classList.contains('print') || entry.classList.contains('info') || entry.classList.contains('sync') || entry.classList.contains('studio-print');
+          entry.style.display = isPrint ? '' : 'none';
+        } else if (activeConsoleFilter === 'warn') {
+          const isWarn = entry.classList.contains('warn') || entry.classList.contains('studio-warn') || entry.classList.contains('studio-warning');
+          entry.style.display = isWarn ? '' : 'none';
+        } else if (activeConsoleFilter === 'error') {
+          const isError = entry.classList.contains('error') || entry.classList.contains('studio-error');
+          entry.style.display = isError ? '' : 'none';
+        }
+      });
+    }
+
+    // 5. Game Explorer Search Filter
+    if (explorerSearchInput) {
+      explorerSearchInput.addEventListener('input', () => {
+        if (!explorerTree) return;
+        const query = explorerSearchInput.value.toLowerCase().trim();
+        const services = explorerTree.querySelectorAll('.explorer-service');
+        services.forEach(svc => {
+          let anyMatch = false;
+          const nodes = svc.querySelectorAll('.explorer-node');
+          nodes.forEach(node => {
+            const text = node.textContent.toLowerCase();
+            const matches = !query || text.includes(query);
+            node.style.display = matches ? '' : 'none';
+            if (matches) anyMatch = true;
+          });
+          const svcName = svc.querySelector('.explorer-service-name')?.textContent.toLowerCase() || '';
+          if (svcName.includes(query)) anyMatch = true;
+          svc.style.display = !query || anyMatch ? '' : 'none';
+          if (query && anyMatch) {
+            svc.classList.remove('collapsed');
+          }
+        });
+      });
+    }
+
+    // 6. Game Explorer Expand/Collapse All
+    if (btnExpandAllTree) {
+      btnExpandAllTree.addEventListener('click', () => {
+        if (!explorerTree) return;
+        explorerTree.querySelectorAll('.explorer-service').forEach(s => s.classList.remove('collapsed'));
+        showToast('📂 Expanded all services', 'info');
+      });
+    }
+
+    if (btnCollapseAllTree) {
+      btnCollapseAllTree.addEventListener('click', () => {
+        if (!explorerTree) return;
+        explorerTree.querySelectorAll('.explorer-service').forEach(s => s.classList.add('collapsed'));
+        showToast('📁 Collapsed all services', 'info');
+      });
+    }
   }
 
 });
