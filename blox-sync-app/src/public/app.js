@@ -87,7 +87,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnConfirmDeleteProject = document.getElementById('btnConfirmDeleteProject');
 
   // ── Frameless Titlebar & Window Chrome ──
+  const titlebarWindowTitle   = document.getElementById('titlebarWindowTitle');
   const titlebarProjectName   = document.getElementById('titlebarProjectName');
+  const titlebarStudioBadge   = document.getElementById('titlebarStudioBadge');
   const titlebarPulse         = document.getElementById('titlebarPulse');
   const titlebarStudioText    = document.getElementById('titlebarStudioText');
   const btnWinMin             = document.getElementById('btnWinMin');
@@ -190,10 +192,10 @@ document.addEventListener('DOMContentLoaded', () => {
         updateStudioStatus(data.connected, data.activeProject);
         updateRunnerPill(data.connected);
         if (data.connected) {
-          showToast('🟢 Roblox Studio connected', 'success');
+          showToast('Roblox Studio connected', 'success');
           fetchTree(); // PATH B: load tree on connect
         } else {
-          showToast('🔴 Roblox Studio disconnected', 'error');
+          showToast('Roblox Studio disconnected', 'error');
         }
         break;
 
@@ -213,12 +215,12 @@ document.addEventListener('DOMContentLoaded', () => {
         fetchFiles();
         fetchProjects();
         checkProjectFeatures();
-        showToast(`📂 Switched to project: ${data.projectName}`, 'info');
+        showToast(`Switched to project: ${data.projectName}`, 'info');
         break;
 
       case 'project_rescanned':
         fetchFiles();
-        showToast('🔄 Project rescanned', 'info');
+        showToast('Project rescanned', 'info');
         break;
 
       // ── PATH B events ─────────────────────────────────────────────────────
@@ -241,25 +243,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
       case 'conflict_resolved':
         if (modalConflict) modalConflict.classList.add('hidden');
-        showToast(`✅ Conflict resolved (${data.resolution === 'ide' ? 'IDE' : 'Studio'} version kept): ${data.relPath}`, 'success');
+        showToast(`Conflict resolved (${data.resolution === 'ide' ? 'IDE' : 'Studio'} version kept): ${data.relPath}`, 'success');
         break;
 
       case 'file_renamed':
         fetchFiles();
-        showToast(`✏️ Renamed: ${data.change?.oldRelPath} → ${data.change?.relPath}`, 'info');
+        showToast(`Renamed: ${data.change?.oldRelPath} → ${data.change?.relPath}`, 'info');
         break;
 
       case 'wally_install_start':
         if (btnWallyInstall) btnWallyInstall.classList.add('loading');
-        showToast('📦 Wally installing packages…', 'info');
+        showToast('Wally: Installing packages...', 'info');
         break;
 
       case 'wally_install_result':
         if (btnWallyInstall) btnWallyInstall.classList.remove('loading');
         if (data.success) {
-          showToast('✅ Wally install complete!', 'success');
+          showToast('Wally: Package install complete', 'success');
         } else {
-          showToast(`❌ Wally install failed: ${(data.output || '').slice(0, 80)}`, 'error');
+          showToast(`Wally: Install failed: ${(data.output || '').slice(0, 80)}`, 'error');
         }
         break;
 
@@ -274,7 +276,7 @@ document.addEventListener('DOMContentLoaded', () => {
           statTsStatus.textContent = data.success ? 'Build OK' : 'Build Error';
           statTsStatus.style.color = data.success ? 'var(--accent-green)' : 'var(--accent-red)';
         }
-        showToast(data.success ? '✅ TypeScript compiled!' : `❌ TS Error: ${(data.output || '').slice(0, 80)}`, data.success ? 'success' : 'error');
+        showToast(data.success ? 'TypeScript compiled successfully' : `TypeScript build error: ${(data.output || '').slice(0, 80)}`, data.success ? 'success' : 'error');
         break;
     }
   }
@@ -363,6 +365,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (data.activeProject) {
       if (statActiveProject) statActiveProject.textContent = data.activeProject;
       if (titlebarProjectName) titlebarProjectName.textContent = data.activeProject;
+      if (titlebarWindowTitle) titlebarWindowTitle.textContent = `${data.activeProject} — Blox Sync`;
     }
     if (data.trackedFilesCount !== undefined && statTrackedCount) {
       statTrackedCount.textContent = data.trackedFilesCount;
@@ -378,7 +381,8 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       if (studioPulse) studioPulse.className = 'pulse-dot online';
       if (titlebarPulse) titlebarPulse.className = 'pulse-dot online';
-      if (titlebarStudioText) titlebarStudioText.textContent = 'Studio: Connected';
+      if (titlebarStudioText) titlebarStudioText.textContent = 'Studio Connected';
+      if (titlebarStudioBadge) titlebarStudioBadge.className = 'badge badge-success';
     } else {
       if (statStudioStatus) {
         statStudioStatus.textContent = 'Disconnected';
@@ -386,7 +390,8 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       if (studioPulse) studioPulse.className = 'pulse-dot offline';
       if (titlebarPulse) titlebarPulse.className = 'pulse-dot offline';
-      if (titlebarStudioText) titlebarStudioText.textContent = 'Studio: Offline';
+      if (titlebarStudioText) titlebarStudioText.textContent = 'Studio Offline';
+      if (titlebarStudioBadge) titlebarStudioBadge.className = 'badge badge-error';
     }
   }
 
@@ -469,7 +474,7 @@ document.addEventListener('DOMContentLoaded', () => {
     a.download = `blox-sync-log-${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.txt`;
     a.click();
     URL.revokeObjectURL(url);
-    showToast('📄 Log exported', 'success');
+    showToast('Log exported', 'success');
   }
 
   // ═══════════════════════════════════════════════════════════════════════
@@ -478,17 +483,22 @@ document.addEventListener('DOMContentLoaded', () => {
   function setupEventListeners() {
 
     // ── Project Dropdown ──
-    projectSelect.addEventListener('change', async (e) => {
-      const selected = e.target.value;
-      if (selected) {
-        const res = await fetch('/select-project', {
+    projectSelect.addEventListener('change', async () => {
+      const selected = projectSelect.value;
+      if (!selected) return;
+      try {
+        const res = await fetch('/switch-project', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name: selected })
+          body: JSON.stringify({ project: selected })
         });
         if (res.ok) {
-          showToast(`📂 Switched to: ${selected}`, 'info');
+          currentProject = selected;
+          showToast(`Switched to: ${selected}`, 'info');
+          fetchFiles();
         }
+      } catch (e) {
+        console.error('Switch project error:', e);
       }
     });
 
@@ -510,7 +520,7 @@ document.addEventListener('DOMContentLoaded', () => {
     btnSubmitCreateProject.addEventListener('click', async () => {
       const name = inputProjectName.value.trim();
       if (!name) {
-        showToast('⚠️ Please enter a project name', 'error');
+        showToast('Please enter a project name', 'error');
         return;
       }
       const templateRadio = document.querySelector('input[name="projectTemplate"]:checked');
@@ -526,11 +536,11 @@ document.addEventListener('DOMContentLoaded', () => {
       });
       if (res.ok) {
         const templateLabel = template === 'knit' ? 'Knit Framework' : 'Standard';
-        showToast(`✅ Created project: ${name} (${templateLabel})`, 'success');
+        showToast(`Created project: ${name} (${templateLabel})`, 'success');
         fetchProjects();
       } else {
         const err = await res.json().catch(() => ({}));
-        showToast(`❌ Create failed: ${err.error || 'unknown error'}`, 'error');
+        showToast(`Create failed: ${err.error || 'unknown error'}`, 'error');
       }
     });
 
@@ -562,11 +572,11 @@ document.addEventListener('DOMContentLoaded', () => {
         body: JSON.stringify({ oldName: currentProject, newName })
       });
       if (res.ok) {
-        showToast(`✏️ Renamed to: ${newName}`, 'success');
+        showToast(`Renamed to: ${newName}`, 'success');
         fetchProjects();
       } else {
         const err = await res.json().catch(() => ({}));
-        showToast(`❌ Rename failed: ${err.error || 'unknown error'}`, 'error');
+        showToast(`Rename failed: ${err.error || 'unknown error'}`, 'error');
       }
     });
 
@@ -590,11 +600,11 @@ document.addEventListener('DOMContentLoaded', () => {
       });
       if (res.ok) {
         const data = await res.json();
-        showToast(`🗑️ Deleted "${nameToDelete}". Active: ${data.activeProject}`, 'success');
+        showToast(`Deleted "${nameToDelete}". Active: ${data.activeProject}`, 'success');
         fetchProjects();
       } else {
         const err = await res.json().catch(() => ({}));
-        showToast(`❌ Delete failed: ${err.error || 'unknown error'}`, 'error');
+        showToast(`Delete failed: ${err.error || 'unknown error'}`, 'error');
       }
     });
 
@@ -606,7 +616,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ── Rescan ──
     btnRescan.addEventListener('click', async () => {
       await fetch('/api/rescan', { method: 'POST' });
-      showToast('🔄 Rescanning project files...', 'info');
+      showToast('Rescanning project files...', 'info');
     });
 
     // ── Console Buttons ──
@@ -702,7 +712,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (customCmd) {
           launchIDE('custom', customCmd);
         } else {
-          showToast('⚠️ Please enter a custom CLI command or path', 'error');
+          showToast('Please enter a custom CLI command or executable path', 'error');
         }
       });
     }
@@ -710,17 +720,17 @@ document.addEventListener('DOMContentLoaded', () => {
     // ── Launch Roblox Studio ──
     if (btnOpenStudio) {
       btnOpenStudio.addEventListener('click', async () => {
-        showToast('🚀 Launching Roblox Studio...', 'info');
+        showToast('Launching Roblox Studio...', 'info');
         try {
           const res = await fetch('/api/open-studio', { method: 'POST' });
           const data = await res.json().catch(() => ({}));
           if (res.ok) {
-            showToast('✅ Roblox Studio launched!', 'success');
+            showToast('Roblox Studio launched successfully', 'success');
           } else {
-            showToast(`❌ Failed to launch Studio: ${data.error || 'Unknown error'}`, 'error');
+            showToast(`Failed to launch Studio: ${data.error || 'Unknown error'}`, 'error');
           }
         } catch (e) {
-          showToast(`❌ Failed to launch Studio: ${e.message}`, 'error');
+          showToast(`Failed to launch Studio: ${e.message}`, 'error');
         }
       });
     }
@@ -831,15 +841,15 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
     runnerOutput.appendChild(entry);
     runnerOutput.scrollTop = runnerOutput.scrollHeight;
-    setRunnerJobStatus(isOk ? 'success' : 'error', isOk ? `✅ Job #${result.jobId} done` : `❌ Error in job #${result.jobId}`);
+    setRunnerJobStatus(isOk ? 'success' : 'error', isOk ? `Job #${result.jobId} completed` : `Job #${result.jobId} failed`);
     if (btnRunLuau) { btnRunLuau.classList.remove('running'); btnRunLuau.disabled = false; }
   }
 
   async function executeCode() {
     const code = runnerCode?.value?.trim();
-    if (!code) { showToast('⚠️ Enter some Luau code first', 'error'); return; }
+    if (!code) { showToast('Enter Luau code to execute', 'error'); return; }
     if (btnRunLuau) { btnRunLuau.classList.add('running'); btnRunLuau.disabled = true; }
-    setRunnerJobStatus('running', '⏳ Sending to Studio…');
+    setRunnerJobStatus('running', 'Sending to Studio…');
     try {
       const res  = await fetch('/execute', {
         method: 'POST',
@@ -848,16 +858,16 @@ document.addEventListener('DOMContentLoaded', () => {
       });
       const data = await res.json();
       if (!res.ok) {
-        setRunnerJobStatus('error', `❌ ${data.error || 'Execute failed'}`);
-        showToast(`❌ ${data.error || 'Execute failed'}`, 'error');
+        setRunnerJobStatus('error', data.error || 'Execute failed');
+        showToast(data.error || 'Execute failed', 'error');
         if (btnRunLuau) { btnRunLuau.classList.remove('running'); btnRunLuau.disabled = false; }
       } else {
-        setRunnerJobStatus('running', `⏳ Job #${data.jobId} queued…`);
-        showToast(`⚡ Job #${data.jobId} queued in Studio`, 'info');
+        setRunnerJobStatus('running', `Job #${data.jobId} queued…`);
+        showToast(`Job #${data.jobId} queued in Studio`, 'info');
       }
     } catch (e) {
-      setRunnerJobStatus('error', '❌ Network error');
-      showToast('❌ Network error — is bridge server running?', 'error');
+      setRunnerJobStatus('error', 'Network error');
+      showToast('Network error — verify bridge server is active', 'error');
       if (btnRunLuau) { btnRunLuau.classList.remove('running'); btnRunLuau.disabled = false; }
     }
   }
@@ -874,23 +884,41 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // PATH B — Game Explorer Tree
+  // PATH B — Game Explorer Tree (Vector SVG Nodes)
   // ═══════════════════════════════════════════════════════════════════════════
-  const SERVICE_ICONS = {
-    ReplicatedStorage: '📦', ServerScriptService: '💻', ServerStorage: '🗴',
-    StarterGui: '🎨', StarterPack: '🎒', StarterPlayer: '👤', Workspace: '🌍',
-    Lighting: '💡', SoundService: '🔊', Teams: '👥', Players: '👥', default: '📌'
+  const TREE_SVGS = {
+    folder: `<svg class="tree-icon icon-folder" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>`,
+    script: `<svg class="tree-icon icon-script" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>`,
+    localscript: `<svg class="tree-icon icon-localscript" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><polyline points="8 12 11 15 8 18"></polyline></svg>`,
+    modulescript: `<svg class="tree-icon icon-modulescript" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>`,
+    model: `<svg class="tree-icon icon-model" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg>`,
+    part: `<svg class="tree-icon icon-part" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>`,
+    remote: `<svg class="tree-icon icon-remote" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"></path><path d="M12 5l7 7-7 7"></path></svg>`,
+    service: `<svg class="tree-icon icon-service" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>`
   };
-  const INSTANCE_ICONS = {
-    Script: '🟦', LocalScript: '🟥', ModuleScript: '🟨', RemoteEvent: '🔗',
-    RemoteFunction: '🔗', Folder: '📁', Model: '🧩', Part: '🟫', default: '📌'
-  };
+
+  function getServiceIcon() {
+    return TREE_SVGS.service;
+  }
+
+  function getInstanceIcon(className) {
+    switch (className) {
+      case 'Script': return TREE_SVGS.script;
+      case 'LocalScript': return TREE_SVGS.localscript;
+      case 'ModuleScript': return TREE_SVGS.modulescript;
+      case 'Folder': return TREE_SVGS.folder;
+      case 'Model': return TREE_SVGS.model;
+      case 'Part': case 'MeshPart': case 'WedgePart': case 'TrussPart': return TREE_SVGS.part;
+      case 'RemoteEvent': case 'RemoteFunction': case 'BindableEvent': case 'BindableFunction': return TREE_SVGS.remote;
+      default: return TREE_SVGS.folder;
+    }
+  }
 
   function renderExplorerTree(tree, timestamp) {
     if (!explorerTree) return;
     explorerTree.innerHTML = '';
     if (!tree || tree.length === 0) {
-      explorerTree.innerHTML = '<div class="explorer-empty">No data from Studio yet.</div>';
+      explorerTree.innerHTML = '<div class="explorer-empty">No DataModel received from Studio.</div>';
       return;
     }
     if (explorerTimestamp && timestamp) {
@@ -898,7 +926,6 @@ document.addEventListener('DOMContentLoaded', () => {
       explorerTimestamp.className = 'badge badge-success';
     }
     for (const svcNode of tree) {
-      const icon = SERVICE_ICONS[svcNode.name] || SERVICE_ICONS.default;
       const childCount = svcNode.children ? svcNode.children.length : 0;
       const svcEl = document.createElement('div');
       svcEl.className = 'explorer-service';
@@ -907,7 +934,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <svg class="explorer-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
             <polyline points="6 9 12 15 18 9"></polyline>
           </svg>
-          <span class="explorer-service-icon">${icon}</span>
+          <span class="explorer-service-icon">${getServiceIcon(svcNode.name)}</span>
           <span class="explorer-service-name">${escapeHtml(svcNode.name)}</span>
           <span class="explorer-child-count">${childCount}</span>
         </div>
@@ -917,7 +944,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const children = svcEl.querySelector('.explorer-service-children');
       if (svcNode.children && svcNode.children.length > 0) {
         for (const child of svcNode.children) {
-          const cIcon = INSTANCE_ICONS[child.className] || INSTANCE_ICONS.default;
+          const cIcon = getInstanceIcon(child.className);
           const nodeEl = document.createElement('div');
           nodeEl.className = 'explorer-node';
           nodeEl.innerHTML = `
@@ -951,8 +978,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (btnRefreshTree) {
     btnRefreshTree.addEventListener('click', () => {
-      if (explorerTree) explorerTree.innerHTML = '<div class="explorer-empty">⏳ Requesting snapshot…</div>';
-      showToast('🌳 Requesting DataModel snapshot from Studio…', 'info');
+      if (explorerTree) explorerTree.innerHTML = '<div class="explorer-empty">Requesting snapshot...</div>';
+      showToast('Requesting DataModel snapshot from Studio...', 'info');
       fetchTree();
     });
   }
@@ -988,26 +1015,25 @@ document.addEventListener('DOMContentLoaded', () => {
   // FEATURE 1 — .rbxlx Place File Export
   // ═══════════════════════════════════════════════════════════════════════════
   async function exportRbxlx() {
-    showToast('📦 Generating Roblox place XML (.rbxlx)...', 'info');
+    showToast('Generating Roblox place XML (.rbxlx)...', 'info');
     try {
       const res = await fetch('/api/export-rbxlx');
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
-        showToast(`❌ Export failed: ${err.error || 'Server error'}`, 'error');
+        showToast(`Export failed: ${err.error || 'Server error'}`, 'error');
         return;
       }
       const blob = await res.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `${currentProject || 'place'}.rbxlx`;
+      a.download = `${currentProject || 'RobloxPlace'}.rbxlx`;
       document.body.appendChild(a);
       a.click();
       a.remove();
-      window.URL.revokeObjectURL(url);
-      showToast(`✅ Exported .rbxlx! Open directly in Studio without the plugin.`, 'success');
+      showToast('Exported .rbxlx successfully', 'success');
     } catch (err) {
-      showToast(`❌ Export failed: ${err.message}`, 'error');
+      showToast(`Export failed: ${err.message}`, 'error');
     }
   }
 
@@ -1034,7 +1060,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (conflictIdeContent) conflictIdeContent.value = data.ideContent || '';
     if (conflictStudioContent) conflictStudioContent.value = data.studioContent || '';
     modalConflict.classList.remove('hidden');
-    showToast(`⚠️ Conflict on "${data.relPath}"! Select IDE or Studio version to keep.`, 'warn');
+    showToast(`Conflict on "${data.relPath}". Select IDE or Studio version to keep.`, 'warn');
   }
 
   async function resolveConflict(resolution) {
@@ -1048,14 +1074,14 @@ document.addEventListener('DOMContentLoaded', () => {
       const data = await res.json().catch(() => ({}));
       if (res.ok) {
         if (modalConflict) modalConflict.classList.add('hidden');
-        showToast(`✅ Kept ${resolution.toUpperCase()} version for ${activeConflictPath}`, 'success');
+        showToast(`Kept ${resolution.toUpperCase()} version for ${activeConflictPath}`, 'success');
         activeConflictPath = null;
         fetchFiles();
       } else {
-        showToast(`❌ Resolution failed: ${data.error || 'Unknown error'}`, 'error');
+        showToast(`Resolution failed: ${data.error || 'Unknown error'}`, 'error');
       }
     } catch (err) {
-      showToast(`❌ Resolution failed: ${err.message}`, 'error');
+      showToast(`Resolution failed: ${err.message}`, 'error');
     }
   }
 
@@ -1064,20 +1090,20 @@ document.addEventListener('DOMContentLoaded', () => {
   // ═══════════════════════════════════════════════════════════════════════════
   async function wallyInstall() {
     if (btnWallyInstall) btnWallyInstall.classList.add('loading');
-    showToast('📦 Running wally install...', 'info');
+    showToast('Running wally install...', 'info');
     try {
       const res = await fetch('/api/wally-install', { method: 'POST' });
       const data = await res.json().catch(() => ({}));
       if (btnWallyInstall) btnWallyInstall.classList.remove('loading');
       if (res.ok) {
-        showToast('✅ Wally packages installed successfully!', 'success');
+        showToast('Wally packages installed successfully', 'success');
         fetchFiles();
       } else {
-        showToast(`❌ Wally install failed: ${data.error || 'Check console output'}`, 'error');
+        showToast(`Wally install failed: ${data.error || 'Check console output'}`, 'error');
       }
     } catch (err) {
       if (btnWallyInstall) btnWallyInstall.classList.remove('loading');
-      showToast(`❌ Wally error: ${err.message}`, 'error');
+      showToast(`Wally error: ${err.message}`, 'error');
     }
   }
 
@@ -1086,17 +1112,17 @@ document.addEventListener('DOMContentLoaded', () => {
   // ═══════════════════════════════════════════════════════════════════════════
   async function tsCompile() {
     if (btnTsCompile) btnTsCompile.classList.add('ts-compiling');
-    showToast('⚡ Compiling TypeScript via roblox-ts (rbxtsc)...', 'info');
+    showToast('Compiling TypeScript via roblox-ts (rbxtsc)...', 'info');
     try {
       const res = await fetch('/api/ts-compile', { method: 'POST' });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
         if (btnTsCompile) btnTsCompile.classList.remove('ts-compiling');
-        showToast(`❌ TS compile error: ${data.error || 'Unknown error'}`, 'error');
+        showToast(`TypeScript build error: ${data.error || 'Unknown error'}`, 'error');
       }
     } catch (err) {
       if (btnTsCompile) btnTsCompile.classList.remove('ts-compiling');
-      showToast(`❌ TS compile error: ${err.message}`, 'error');
+      showToast(`TypeScript build error: ${err.message}`, 'error');
     }
   }
 
@@ -1194,7 +1220,7 @@ document.addEventListener('DOMContentLoaded', () => {
           runnerCode.value = LUAU_SNIPPETS[key];
           runnerSnippetSelect.value = '';
           runnerCode.focus();
-          showToast('⚡ Luau snippet loaded into editor', 'info');
+          showToast('Luau snippet loaded into editor', 'info');
         }
       });
     }
@@ -1209,7 +1235,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         if (navigator.clipboard) {
           navigator.clipboard.writeText(text).then(() => {
-            showToast('📋 Output copied to clipboard', 'success');
+            showToast('Output copied to clipboard', 'success');
           }).catch(() => {
             showToast('Failed to copy to clipboard', 'error');
           });
@@ -1229,7 +1255,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const text = visibleEntries.map(e => e.innerText).join('\n');
         if (navigator.clipboard) {
           navigator.clipboard.writeText(text).then(() => {
-            showToast('📋 Logs copied to clipboard', 'success');
+            showToast('Logs copied to clipboard', 'success');
           }).catch(() => {
             showToast('Failed to copy to clipboard', 'error');
           });
@@ -1298,7 +1324,7 @@ document.addEventListener('DOMContentLoaded', () => {
       btnExpandAllTree.addEventListener('click', () => {
         if (!explorerTree) return;
         explorerTree.querySelectorAll('.explorer-service').forEach(s => s.classList.remove('collapsed'));
-        showToast('📂 Expanded all services', 'info');
+        showToast('Expanded all services', 'info');
       });
     }
 
@@ -1306,7 +1332,7 @@ document.addEventListener('DOMContentLoaded', () => {
       btnCollapseAllTree.addEventListener('click', () => {
         if (!explorerTree) return;
         explorerTree.querySelectorAll('.explorer-service').forEach(s => s.classList.add('collapsed'));
-        showToast('📁 Collapsed all services', 'info');
+        showToast('Collapsed all services', 'info');
       });
     }
   }
