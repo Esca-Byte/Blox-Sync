@@ -22,8 +22,7 @@
     "ai-agent"
   ],
   "author": "Esca-Byte",
-  "license": "UNLICENSED",
-  "private": true,
+  "license": "MIT",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.6.1"
   }

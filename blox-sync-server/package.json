@@ -21,8 +21,7 @@
     "sync"
   ],
   "author": "Esca-Byte",
-  "license": "UNLICENSED",
-  "private": true,
+  "license": "MIT",
   "dependencies": {
     "chokidar": "^3.5.3",
     "cors": "^2.8.5",
