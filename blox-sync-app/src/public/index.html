@@ -582,6 +582,75 @@
     </div>
   </div>
 
+  <!-- ── MCP First-Run Setup Modal ────────────────────────────────────────── -->
+  <div id="modalMcpSetup" class="mcp-setup-overlay hidden">
+    <div class="mcp-setup-dialog">
+      <div class="mcp-setup-header">
+        <div class="mcp-setup-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+          </svg>
+        </div>
+        <div>
+          <h2 class="mcp-setup-title">Install AI Agent Tools</h2>
+          <p class="mcp-setup-subtitle">Enable Antigravity, Cursor &amp; Claude to control Roblox Studio directly</p>
+        </div>
+      </div>
+
+      <!-- Feature list (shown before install) -->
+      <div id="mcpFeatureList" class="mcp-feature-list">
+        <div class="mcp-feature-item">
+          <span class="mcp-feature-dot green"></span>
+          <span>Run Luau code in Studio from your AI chat</span>
+        </div>
+        <div class="mcp-feature-item">
+          <span class="mcp-feature-dot green"></span>
+          <span>Inspect the live DataModel hierarchy</span>
+        </div>
+        <div class="mcp-feature-item">
+          <span class="mcp-feature-dot green"></span>
+          <span>Stream Studio logs and fix errors autonomously</span>
+        </div>
+        <div class="mcp-feature-item">
+          <span class="mcp-feature-dot green"></span>
+          <span>Start / stop playtests without leaving your IDE</span>
+        </div>
+        <p class="mcp-setup-note">Configures Antigravity, Cursor &amp; Claude Desktop automatically. You can skip and install later.</p>
+      </div>
+
+      <!-- Progress section (shown during install) -->
+      <div id="mcpProgressSection" class="mcp-progress-section hidden">
+        <div class="mcp-progress-bar-track">
+          <div id="mcpProgressBar" class="mcp-progress-bar-fill" style="width: 0%"></div>
+        </div>
+        <div class="mcp-progress-meta">
+          <span id="mcpProgressFile" class="mcp-progress-file">Preparing...</span>
+          <span id="mcpProgressPct" class="mcp-progress-pct">0%</span>
+        </div>
+        <div id="mcpProgressStatus" class="mcp-progress-status">Installing MCP server files...</div>
+      </div>
+
+      <!-- Done section -->
+      <div id="mcpDoneSection" class="mcp-done-section hidden">
+        <div class="mcp-done-icon">✅</div>
+        <div id="mcpDoneMessage" class="mcp-done-message">MCP installed successfully!</div>
+        <p class="mcp-setup-note">Restart your IDE to activate the AI tools.</p>
+      </div>
+
+      <!-- Actions -->
+      <div id="mcpSetupActions" class="mcp-setup-actions">
+        <button id="btnMcpInstall" class="btn-mcp-install">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+          Install AI Tools
+        </button>
+        <button id="btnMcpSkip" class="btn-mcp-skip">Skip for now</button>
+      </div>
+      <div id="mcpSetupDoneActions" class="mcp-setup-actions hidden">
+        <button id="btnMcpClose" class="btn-mcp-install">Done</button>
+      </div>
+    </div>
+  </div>
+
   <script src="app.js"></script>
 </body>
 </html>

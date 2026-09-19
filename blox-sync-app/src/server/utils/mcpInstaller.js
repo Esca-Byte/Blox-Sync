@@ -16,47 +16,99 @@ function getMcpInstallDir() {
 // ── Where electron-builder places extraResources ─────────────────────────────
 function getMcpResourcesPath() {
   if (process.resourcesPath) {
-    // Running as packaged EXE
     return path.join(process.resourcesPath, 'mcp');
   }
-  // Dev mode fallback: go up from blox-sync-app/src/server/utils/ to repo root
+  // Dev mode fallback
   return path.join(__dirname, '..', '..', '..', '..', 'blox-sync-mcp');
 }
 
 /**
- * Extracts the bundled MCP source to %APPDATA%\BloxSync\mcp\ (if version changed)
- * and returns the absolute path to index.js.
- * @param {Function} log  - logger(message, level)
+ * Check if MCP is already installed at the current version (synchronous, fast).
+ * @returns {{ installed: boolean, version: string|null, indexPath: string }}
+ */
+function getMcpStatus() {
+  const destDir = getMcpInstallDir();
+  const stampFile = path.join(destDir, '.mcp_version');
+  const indexFile = path.join(destDir, 'src', 'index.js');
+
+  try {
+    const stamp = fs.readFileSync(stampFile, 'utf8').trim();
+    if (stamp === MCP_VERSION && fs.existsSync(indexFile)) {
+      return { installed: true, version: stamp, indexPath: indexFile };
+    }
+  } catch (_) { /* not installed */ }
+
+  return { installed: false, version: null, indexPath: indexFile };
+}
+
+/**
+ * Recursively collect all files in a directory.
+ */
+async function collectFiles(dir) {
+  const results = [];
+  const entries = await fs.readdir(dir, { withFileTypes: true });
+  for (const entry of entries) {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      const sub = await collectFiles(full);
+      results.push(...sub);
+    } else {
+      results.push(full);
+    }
+  }
+  return results;
+}
+
+/**
+ * Extracts the bundled MCP source to %APPDATA%\BloxSync\mcp\ with progress reporting.
+ *
+ * @param {Function} onProgress  - ({ percent: number, copied: number, total: number, file: string }) => void
+ * @param {Function} log         - (message, level) => void
  * @returns {Promise<string|null>} absolute path to mcp/src/index.js, or null on failure
  */
-async function extractAndInstallMcp(log) {
+async function extractAndInstallMcp(onProgress, log) {
   try {
     const srcDir = getMcpResourcesPath();
     const destDir = getMcpInstallDir();
     const stampFile = path.join(destDir, '.mcp_version');
     const indexFile = path.join(destDir, 'src', 'index.js');
 
-    // ── Fast path: synchronous stamp check (no async overhead on repeat launches)
+    // Fast path: synchronous stamp check
     try {
       const stamp = fs.readFileSync(stampFile, 'utf8').trim();
       if (stamp === MCP_VERSION && fs.existsSync(indexFile)) {
         log(`MCP already up to date (v${MCP_VERSION}) — skipping extract.`, 'info');
+        onProgress({ percent: 100, copied: 1, total: 1, file: 'Already installed' });
         return indexFile;
       }
-    } catch (_) { /* stamp missing or unreadable — fall through to install */ }
+    } catch (_) { /* fall through */ }
 
-    // Check if bundled MCP source exists
+    // Check if bundled source exists
     if (!(await fs.pathExists(srcDir))) {
-      log(`MCP source not found at ${srcDir} — skipping MCP setup.`, 'info');
+      log(`MCP source not found at ${srcDir} — skipping.`, 'info');
       return null;
     }
 
-    // Copy bundled MCP → install dir (only runs on first launch or version bump)
     log(`Installing MCP server (v${MCP_VERSION}) to ${destDir} ...`, 'info');
     await fs.ensureDir(destDir);
-    await fs.copy(srcDir, destDir, { overwrite: true });
-    await fs.writeFile(stampFile, MCP_VERSION, 'utf8');
 
+    // Collect all files for accurate progress
+    onProgress({ percent: 0, copied: 0, total: 0, file: 'Scanning files...' });
+    const allFiles = await collectFiles(srcDir);
+    const total = allFiles.length;
+    let copied = 0;
+
+    for (const srcFile of allFiles) {
+      const rel = path.relative(srcDir, srcFile);
+      const destFile = path.join(destDir, rel);
+      await fs.ensureDir(path.dirname(destFile));
+      await fs.copyFile(srcFile, destFile);
+      copied++;
+      const percent = Math.round((copied / total) * 100);
+      onProgress({ percent, copied, total, file: rel });
+    }
+
+    await fs.writeFile(stampFile, MCP_VERSION, 'utf8');
     log(`MCP server installed at ${destDir}`, 'info');
     return indexFile;
   } catch (err) {
@@ -98,25 +150,20 @@ function getIdeConfigs() {
 
 /**
  * Writes the roblox-bridge MCP entry into every IDE config that already exists.
- * Never touches IDE configs that don't exist (avoids creating unwanted files).
- * Never clobbers other MCP servers the user has configured.
+ * Never clobbers other MCP servers the user has.
  *
- * @param {string}   mcpIndexPath  - absolute path to installed mcp/src/index.js
- * @param {Function} log           - logger(message, level)
- * @returns {Promise<string[]>}    - list of IDE names that were configured
+ * @param {string}   mcpIndexPath
+ * @param {Function} log
+ * @returns {Promise<string[]>} list of IDE names configured
  */
 async function configureIDEs(mcpIndexPath, log) {
   const configured = [];
-
-  // Normalise to forward slashes (works in all MCP clients on Windows)
   const normalizedPath = mcpIndexPath.replace(/\\/g, '/');
 
   const mcpEntry = {
     command: 'node',
     args: [normalizedPath],
-    env: {
-      BLOX_SYNC_URL: 'http://localhost:7777',
-    },
+    env: { BLOX_SYNC_URL: 'http://localhost:7777' },
   };
 
   for (const ide of getIdeConfigs()) {
@@ -125,16 +172,13 @@ async function configureIDEs(mcpIndexPath, log) {
       const configExists = await fs.pathExists(ide.configPath);
 
       if (!configExists) {
-        // Create the config directory + file for Antigravity since it's the primary IDE
         if (ide.name === 'Antigravity') {
           await fs.ensureDir(configDir);
           const newConfig = { mcpServers: { 'roblox-bridge': mcpEntry } };
           await fs.writeFile(ide.configPath, ide.write(newConfig), 'utf8');
           log(`MCP auto-configured for ${ide.name} (new config created)`, 'info');
           configured.push(ide.name);
-        }
-        // For other IDEs, only configure if they're already installed (config dir exists)
-        else if (await fs.pathExists(configDir)) {
+        } else if (await fs.pathExists(configDir)) {
           const newConfig = { mcpServers: { 'roblox-bridge': mcpEntry } };
           await fs.writeFile(ide.configPath, ide.write(newConfig), 'utf8');
           log(`MCP auto-configured for ${ide.name}`, 'info');
@@ -143,12 +187,9 @@ async function configureIDEs(mcpIndexPath, log) {
         continue;
       }
 
-      // Config exists — read, merge, write
       const raw = await fs.readFile(ide.configPath, 'utf8');
       let obj;
-      try {
-        obj = ide.read(raw);
-      } catch {
+      try { obj = ide.read(raw); } catch {
         log(`MCP config for ${ide.name} is invalid JSON — skipping`, 'warn');
         continue;
       }
@@ -156,7 +197,7 @@ async function configureIDEs(mcpIndexPath, log) {
       const servers = ide.getServers(obj);
       servers['roblox-bridge'] = mcpEntry;
       await fs.writeFile(ide.configPath, ide.write(obj), 'utf8');
-      log(`MCP auto-configured for ${ide.name} at ${ide.configPath}`, 'info');
+      log(`MCP configured for ${ide.name} at ${ide.configPath}`, 'info');
       configured.push(ide.name);
     } catch (err) {
       log(`MCP config failed for ${ide.name}: ${err.message}`, 'warn');
@@ -166,4 +207,4 @@ async function configureIDEs(mcpIndexPath, log) {
   return configured;
 }
 
-module.exports = { extractAndInstallMcp, configureIDEs };
+module.exports = { extractAndInstallMcp, configureIDEs, getMcpStatus };

@@ -120,6 +120,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initWebSocket();
   fetchInitialData();
   setupEventListeners();
+  initMcpSetup();
 
   // ═══════════════════════════════════════════════════════════════════════
   // WebSocket
@@ -279,11 +280,43 @@ document.addEventListener('DOMContentLoaded', () => {
         showToast(data.success ? 'TypeScript compiled successfully' : `TypeScript build error: ${(data.output || '').slice(0, 80)}`, data.success ? 'success' : 'error');
         break;
 
-      case 'mcp_setup_complete':
-        if (data.data && data.data.configuredIDEs && data.data.configuredIDEs.length > 0) {
-          showToast(`🤖 MCP auto-configured for: ${data.data.configuredIDEs.join(', ')} — restart your IDE to activate`, 'success');
+      case 'mcp_install_progress': {
+        const p = data.data || {};
+        const bar    = document.getElementById('mcpProgressBar');
+        const pct    = document.getElementById('mcpProgressPct');
+        const file   = document.getElementById('mcpProgressFile');
+        const status = document.getElementById('mcpProgressStatus');
+        if (bar)    bar.style.width    = `${p.percent || 0}%`;
+        if (pct)    pct.textContent    = `${p.percent || 0}%`;
+        if (file)   file.textContent   = p.file   || '';
+        if (status) status.textContent = p.total   ? `Copying files... (${p.copied}/${p.total})` : 'Scanning...';
+        break;
+      }
+
+      case 'mcp_install_complete': {
+        const d = data.data || {};
+        const progressSection = document.getElementById('mcpProgressSection');
+        const doneSection     = document.getElementById('mcpDoneSection');
+        const doneMsg         = document.getElementById('mcpDoneMessage');
+        const actionsInstall  = document.getElementById('mcpSetupActions');
+        const actionsDone     = document.getElementById('mcpSetupDoneActions');
+        if (progressSection) progressSection.classList.add('hidden');
+        if (doneSection)     doneSection.classList.remove('hidden');
+        if (actionsInstall)  actionsInstall.classList.add('hidden');
+        if (actionsDone)     actionsDone.classList.remove('hidden');
+        if (d.success) {
+          const ides = (d.configuredIDEs || []).join(', ');
+          if (doneMsg) doneMsg.textContent = ides
+            ? `MCP installed! Configured for: ${ides}`
+            : 'MCP installed successfully!';
+        } else {
+          const doneIcon = document.querySelector('.mcp-done-icon');
+          if (doneIcon) doneIcon.textContent = '⚠️';
+          if (doneMsg)  doneMsg.style.color = 'var(--accent-amber)';
+          if (doneMsg)  doneMsg.textContent  = `Install failed: ${d.error || 'unknown error'}`;
         }
         break;
+      }
     }
   }
 
@@ -1420,6 +1453,60 @@ document.addEventListener('DOMContentLoaded', () => {
         showToast('Collapsed all services', 'info');
       });
     }
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // MCP First-Run Setup Modal
+  // ═══════════════════════════════════════════════════════════════════════
+  async function initMcpSetup() {
+    try {
+      const res  = await fetch('/api/mcp/status');
+      const data = await res.json();
+      if (data.installed) return; // Already set up — nothing to do
+
+      // Show modal after a short delay so the main app renders first
+      setTimeout(() => {
+        const overlay = document.getElementById('modalMcpSetup');
+        if (overlay) overlay.classList.remove('hidden');
+      }, 600);
+
+      // Wire up Install button
+      const btnInstall = document.getElementById('btnMcpInstall');
+      if (btnInstall) {
+        btnInstall.addEventListener('click', async () => {
+          // Switch to progress view
+          const featureList    = document.getElementById('mcpFeatureList');
+          const progressSection = document.getElementById('mcpProgressSection');
+          if (featureList)     featureList.classList.add('hidden');
+          if (progressSection) progressSection.classList.remove('hidden');
+
+          // Disable install button while running
+          btnInstall.disabled = true;
+          btnInstall.textContent = 'Installing...';
+
+          await fetch('/api/mcp/install', { method: 'POST' });
+          // Progress + completion handled via WebSocket (mcp_install_progress / mcp_install_complete)
+        });
+      }
+
+      // Wire up Skip button
+      const btnSkip = document.getElementById('btnMcpSkip');
+      if (btnSkip) {
+        btnSkip.addEventListener('click', () => {
+          const overlay = document.getElementById('modalMcpSetup');
+          if (overlay) overlay.classList.add('hidden');
+        });
+      }
+
+      // Wire up Done button
+      const btnClose = document.getElementById('btnMcpClose');
+      if (btnClose) {
+        btnClose.addEventListener('click', () => {
+          const overlay = document.getElementById('modalMcpSetup');
+          if (overlay) overlay.classList.add('hidden');
+        });
+      }
+    } catch (_) { /* server not ready yet — skip silently */ }
   }
 
 });

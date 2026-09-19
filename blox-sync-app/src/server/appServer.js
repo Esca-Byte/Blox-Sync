@@ -9,7 +9,7 @@ const chokidar = require('chokidar');
 const { exec, execSync } = require('child_process');
 const crypto = require('crypto');
 const { ensureProjectGuidanceFiles } = require('./utils/projectGuidance');
-const { extractAndInstallMcp, configureIDEs } = require('./utils/mcpInstaller');
+const { extractAndInstallMcp, configureIDEs, getMcpStatus } = require('./utils/mcpInstaller');
 
 // ── Utility: content hash for rename detection ───────────────────────────────
 function hashContent(str) {
@@ -285,47 +285,40 @@ class BloxSyncAppServer {
     }
   }
 
-  // ── MCP Auto-Install ─────────────────────────────────────────────────────
+  // ── MCP Install (triggered by user via dashboard) ────────────────────────
   async ensureMcpInstalled() {
     try {
-      const mcpIndexPath = await extractAndInstallMcp((msg, lvl) => this.log(msg, lvl || 'info'));
-      if (!mcpIndexPath) return;
+      const mcpIndexPath = await extractAndInstallMcp(
+        (progress) => this.broadcast({ event: 'mcp_install_progress', data: progress }),
+        (msg, lvl) => this.log(msg, lvl || 'info')
+      );
+      if (!mcpIndexPath) {
+        this.broadcast({ event: 'mcp_install_complete', data: { success: false, configuredIDEs: [] } });
+        return;
+      }
 
       const configuredIDEs = await configureIDEs(mcpIndexPath, (msg, lvl) => this.log(msg, lvl || 'info'));
-
-      // Broadcast result to dashboard for toast notification
-      this.broadcast({
-        event: 'mcp_setup_complete',
-        data: {
-          mcpPath: mcpIndexPath,
-          configuredIDEs,
-        },
-      });
+      this.broadcast({ event: 'mcp_install_complete', data: { success: true, mcpPath: mcpIndexPath, configuredIDEs } });
 
       if (configuredIDEs.length > 0) {
-        this.log(`MCP auto-configured for: ${configuredIDEs.join(', ')}. Restart your IDE to activate.`, 'info');
+        this.log(`MCP configured for: ${configuredIDEs.join(', ')}. Restart your IDE to activate.`, 'info');
       }
     } catch (err) {
-      this.log(`MCP auto-install error: ${err.message}`, 'warn');
+      this.log(`MCP install error: ${err.message}`, 'warn');
+      this.broadcast({ event: 'mcp_install_complete', data: { success: false, error: err.message, configuredIDEs: [] } });
     }
   }
 
   async start() {
     await fs.ensureDir(this.baseProjectsDir);
     await this.ensurePluginInstalled();
-    // Defer MCP install by 5s so the app window opens instantly.
-    // On first launch: copies ~16 MB / 3600 files — heavy I/O that would delay startup.
-    // On subsequent launches: synchronous stamp check exits in <1ms so the delay is harmless.
-    setTimeout(() => this.ensureMcpInstalled().catch(() => {}), 5000);
 
-    // Load persistent config to restore last active project
+
     const cfg = await this.loadPersistentConfig();
 
-    // Check existing projects
     const entries = await fs.readdir(this.baseProjectsDir, { withFileTypes: true });
     const existing = entries.filter(e => e.isDirectory()).map(e => e.name);
 
-    // Priority: config file > constructor option > first available
     if (cfg.lastActiveProject && existing.includes(cfg.lastActiveProject)) {
       this.activeProjectName = cfg.lastActiveProject;
     } else if (existing.length > 0 && !existing.includes(this.activeProjectName)) {
@@ -1902,6 +1895,18 @@ screenGui.Parent = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGu
     this.app.post('/api/install-plugin', async (req, res) => {
       const result = await this.ensurePluginInstalled();
       res.json(result);
+    });
+
+    // ── MCP AI Tools ─────────────────────────────────────────────────────────
+    this.app.get('/api/mcp/status', (req, res) => {
+      const status = getMcpStatus();
+      res.json(status);
+    });
+
+    this.app.post('/api/mcp/install', (req, res) => {
+      // Respond immediately, installation progress comes via WebSocket
+      res.json({ started: true });
+      this.ensureMcpInstalled().catch(() => {});
     });
 
     this.app.get('/api/logs', (req, res) => {
