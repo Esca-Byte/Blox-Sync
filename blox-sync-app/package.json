@@ -6,7 +6,8 @@
   "scripts": {
     "start": "electron .",
     "server-only": "node src/server/appServer.js",
-    "build-exe": "electron-builder --win portable"
+    "build-exe": "electron-builder --win nsis",
+    "build-portable": "electron-builder --win portable"
   },
   "keywords": [
     "blox-sync",
@@ -35,11 +36,22 @@
   },
   "build": {
     "appId": "com.escabyte.bloxsyncapp",
-    "productName": "BloxSyncApp",
-    "artifactName": "${productName}.${ext}",
+    "productName": "BloxSync",
+    "artifactName": "${productName}-Setup.${ext}",
     "win": {
-      "target": "portable",
-      "icon": "src/public/bloxsynclogo.png"
+      "target": "nsis",
+      "icon": "src/public/bloxsynclogo.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": "always",
+      "createStartMenuShortcut": true,
+      "shortcutName": "Blox Sync",
+      "installerIcon": "src/public/bloxsynclogo.ico",
+      "uninstallerIcon": "src/public/bloxsynclogo.ico",
+      "uninstallDisplayName": "Blox Sync",
+      "runAfterFinish": true
     },
     "directories": {
       "output": "dist"
