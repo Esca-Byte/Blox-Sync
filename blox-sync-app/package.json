@@ -47,6 +47,18 @@
     "files": [
       "src/**/*",
       "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "../blox-sync-mcp",
+        "to": "mcp",
+        "filter": [
+          "**/*",
+          "!.git/**",
+          "!*.md"
+        ]
+      }
     ]
   }
+
 }

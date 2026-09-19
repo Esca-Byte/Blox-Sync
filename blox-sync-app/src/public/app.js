@@ -278,6 +278,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         showToast(data.success ? 'TypeScript compiled successfully' : `TypeScript build error: ${(data.output || '').slice(0, 80)}`, data.success ? 'success' : 'error');
         break;
+
+      case 'mcp_setup_complete':
+        if (data.data && data.data.configuredIDEs && data.data.configuredIDEs.length > 0) {
+          showToast(`🤖 MCP auto-configured for: ${data.data.configuredIDEs.join(', ')} — restart your IDE to activate`, 'success');
+        }
+        break;
     }
   }
 

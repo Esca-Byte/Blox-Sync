@@ -9,6 +9,7 @@ const chokidar = require('chokidar');
 const { exec, execSync } = require('child_process');
 const crypto = require('crypto');
 const { ensureProjectGuidanceFiles } = require('./utils/projectGuidance');
+const { extractAndInstallMcp, configureIDEs } = require('./utils/mcpInstaller');
 
 // ── Utility: content hash for rename detection ───────────────────────────────
 function hashContent(str) {
@@ -284,9 +285,36 @@ class BloxSyncAppServer {
     }
   }
 
+  // ── MCP Auto-Install ─────────────────────────────────────────────────────
+  async ensureMcpInstalled() {
+    try {
+      const mcpIndexPath = await extractAndInstallMcp((msg, lvl) => this.log(msg, lvl || 'info'));
+      if (!mcpIndexPath) return;
+
+      const configuredIDEs = await configureIDEs(mcpIndexPath, (msg, lvl) => this.log(msg, lvl || 'info'));
+
+      // Broadcast result to dashboard for toast notification
+      this.broadcast({
+        event: 'mcp_setup_complete',
+        data: {
+          mcpPath: mcpIndexPath,
+          configuredIDEs,
+        },
+      });
+
+      if (configuredIDEs.length > 0) {
+        this.log(`MCP auto-configured for: ${configuredIDEs.join(', ')}. Restart your IDE to activate.`, 'info');
+      }
+    } catch (err) {
+      this.log(`MCP auto-install error: ${err.message}`, 'warn');
+    }
+  }
+
   async start() {
     await fs.ensureDir(this.baseProjectsDir);
     await this.ensurePluginInstalled();
+    // Run MCP install in background (non-blocking) so it doesn't delay server startup
+    this.ensureMcpInstalled().catch(() => {});
 
     // Load persistent config to restore last active project
     const cfg = await this.loadPersistentConfig();
