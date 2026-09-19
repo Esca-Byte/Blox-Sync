@@ -2,16 +2,38 @@ const { app, BrowserWindow, shell, ipcMain } = require('electron');
 const path = require('path');
 const BloxSyncAppServer = require('../server/appServer');
 
+// ── Single Instance Lock ──────────────────────────────────────────────────
+// Prevent multiple instances from launching concurrently and colliding on port 7777
+const gotTheLock = app.requestSingleInstanceLock();
+if (!gotTheLock) {
+  app.quit();
+} else {
+  app.on('second-instance', () => {
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) mainWindow.restore();
+      if (!mainWindow.isVisible()) mainWindow.show();
+      mainWindow.focus();
+    }
+  });
+}
+
+// Prevent raw uncaught exception popups
+process.on('uncaughtException', (err) => {
+  console.error('[Electron] Uncaught exception:', err.message);
+});
+
 let mainWindow = null;
 let appServer = null;
 
 async function createWindow() {
+  if (!gotTheLock) return;
+
   // 1. Boot Backend Server Engine
   try {
     appServer = new BloxSyncAppServer({ port: 7777 });
     await appServer.start();
   } catch (err) {
-    console.error('[Electron] Server init warning:', err.message);
+    console.warn('[Electron] Server init note:', err.message);
   }
 
   // 2. Create Frameless Windows Desktop App Window

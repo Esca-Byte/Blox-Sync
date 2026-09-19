@@ -163,7 +163,22 @@ class BloxSyncAppServer {
 
     this.app = express();
     this.server = http.createServer(this.app);
+    this.server.on('error', (err) => {
+      if (err.code === 'EADDRINUSE') {
+        console.warn(`[BloxSyncAppServer] Port ${this.port} is already in use.`);
+      } else {
+        console.error('[BloxSyncAppServer] Server error:', err.message);
+      }
+    });
+
     this.wss = new WebSocket.Server({ server: this.server });
+    this.wss.on('error', (err) => {
+      if (err.code === 'EADDRINUSE') {
+        console.warn(`[BloxSyncAppServer] WSS: Port ${this.port} is in use by another instance.`);
+      } else {
+        console.error('[BloxSyncAppServer] WSS error:', err.message);
+      }
+    });
 
     this.rojoParser = new RojoParser(this.activeProjectPath);
     this.projectConfig = null;
@@ -330,7 +345,7 @@ class BloxSyncAppServer {
     await this.loadProject();
 
     return new Promise((resolve) => {
-      this.server.on('error', (err) => {
+      const onListenError = (err) => {
         if (err.code === 'EADDRINUSE') {
           console.log(`[INFO] Port ${this.port} is already in use. Connecting to active server instance.`);
           resolve();
@@ -338,14 +353,21 @@ class BloxSyncAppServer {
           console.error('[ERROR] Server error:', err);
           resolve();
         }
-      });
+      };
 
-      this.server.listen(this.port, () => {
-        this.log(`Blox Sync Server running on http://localhost:${this.port}`, 'info');
-        this.log(`Projects Directory: ${this.baseProjectsDir}`, 'info');
-        this.log(`Active Project: ${this.activeProjectName}`, 'info');
-        resolve();
-      });
+      this.server.once('error', onListenError);
+
+      try {
+        this.server.listen(this.port, () => {
+          this.server.removeListener('error', onListenError);
+          this.log(`Blox Sync Server running on http://localhost:${this.port}`, 'info');
+          this.log(`Projects Directory: ${this.baseProjectsDir}`, 'info');
+          this.log(`Active Project: ${this.activeProjectName}`, 'info');
+          resolve();
+        });
+      } catch (err) {
+        onListenError(err);
+      }
     });
   }
 
