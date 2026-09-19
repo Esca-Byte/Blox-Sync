@@ -1,9 +1,9 @@
 {
   "mcpServers": {
-    "blox-sync": {
+    "roblox-bridge": {
       "command": "node",
       "args": [
-        "c:/Users/sumnk/Downloads/roblox-vscode-bridge-main/blox-sync-mcp/src/index.js"
+        "<ABSOLUTE_PATH_TO_REPO>/blox-sync-mcp/src/index.js"
       ],
       "env": {
         "BLOX_SYNC_URL": "http://localhost:7777"

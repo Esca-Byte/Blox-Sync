@@ -183,8 +183,28 @@ The **Roblox MCP Server** allows AI assistants (such as **Antigravity**, **Curso
 - `roblox_launch_studio`: Launches Roblox Studio via system shortcut.
 
 ### Configuration
-- **Antigravity**: Automatically configured in `~/.gemini/config/mcp_config.json`.
-- **Cursor / Claude Desktop**: Copy `mcp_config.example.json` into your IDE's MCP configuration settings.
+
+> ⚠️ **Important**: The MCP server requires an **absolute path** to your local clone of this repo.  
+> The `mcp_config.example.json` contains a `<ABSOLUTE_PATH_TO_REPO>` placeholder — you **must** replace it with the real path on your machine.
+
+**Antigravity** — edit `~/.gemini/config/mcp_config.json`:
+```json
+{
+  "mcpServers": {
+    "roblox-bridge": {
+      "command": "node",
+      "args": [
+        "C:/path/to/your/roblox-vscode-bridge-main/blox-sync-mcp/src/index.js"
+      ],
+      "env": {
+        "BLOX_SYNC_URL": "http://localhost:7777"
+      }
+    }
+  }
+}
+```
+
+**Cursor / Claude Desktop** — copy `mcp_config.example.json` into your IDE's MCP settings and replace `<ABSOLUTE_PATH_TO_REPO>` with the full path to this repo on your machine (e.g. `C:/Users/YourName/Downloads/roblox-vscode-bridge-main`).
 
 ---
 
