@@ -54,6 +54,7 @@
         "to": "mcp",
         "filter": [
           "**/*",
+          "!node_modules/**",
           "!.git/**",
           "!*.md"
         ]

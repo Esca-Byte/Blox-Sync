@@ -286,10 +286,18 @@ document.addEventListener('DOMContentLoaded', () => {
         const pct    = document.getElementById('mcpProgressPct');
         const file   = document.getElementById('mcpProgressFile');
         const status = document.getElementById('mcpProgressStatus');
-        if (bar)    bar.style.width    = `${p.percent || 0}%`;
-        if (pct)    pct.textContent    = `${p.percent || 0}%`;
-        if (file)   file.textContent   = p.file   || '';
-        if (status) status.textContent = p.total   ? `Copying files... (${p.copied}/${p.total})` : 'Scanning...';
+        if (bar)  bar.style.width  = `${p.percent || 0}%`;
+        if (pct)  pct.textContent  = `${p.percent || 0}%`;
+        if (file) file.textContent = p.file || '';
+        if (status) {
+          if (p.phase === 'npm') {
+            status.textContent = 'Installing npm packages...';
+          } else if (p.total) {
+            status.textContent = `Copying files... (${p.copied}/${p.total})`;
+          } else {
+            status.textContent = 'Scanning...';
+          }
+        }
         break;
       }
 

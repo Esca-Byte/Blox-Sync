@@ -3,6 +3,7 @@
 const path = require('path');
 const fs = require('fs-extra');
 const os = require('os');
+const { execSync, spawn } = require('child_process');
 
 // ── Version stamp — bump this when the bundled MCP changes ───────────────────
 const MCP_VERSION = '1.0.0';
@@ -42,6 +43,18 @@ function getMcpStatus() {
 }
 
 /**
+ * Check if npm is available on the system PATH.
+ */
+function npmAvailable() {
+  try {
+    execSync('npm --version', { stdio: 'ignore' });
+    return true;
+  } catch (_) {
+    return false;
+  }
+}
+
+/**
  * Recursively collect all files in a directory.
  */
 async function collectFiles(dir) {
@@ -60,9 +73,60 @@ async function collectFiles(dir) {
 }
 
 /**
- * Extracts the bundled MCP source to %APPDATA%\BloxSync\mcp\ with progress reporting.
+ * Run `npm install --production` in destDir and stream output lines to onProgress.
+ * Progress advances from startPct → 100 as packages are added.
+ */
+function runNpmInstall(destDir, startPct, onProgress, log) {
+  return new Promise((resolve, reject) => {
+    onProgress({ percent: startPct, copied: 0, total: 0, file: 'Running npm install...' , phase: 'npm' });
+    log('Running npm install --production...', 'info');
+
+    const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm';
+    const proc = spawn(npm, ['install', '--production', '--no-audit', '--no-fund'], {
+      cwd: destDir,
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+
+    let pkgCount = 0;
+    const handleLine = (line) => {
+      line = line.trim();
+      if (!line) return;
+      log(`[npm] ${line}`, 'info');
+      // Count "added N packages" or individual "+" lines to animate progress
+      if (line.startsWith('added ') || line.startsWith('+')) pkgCount++;
+      const pct = Math.min(99, startPct + Math.round((100 - startPct) * Math.min(pkgCount / 35, 1)));
+      onProgress({ percent: pct, copied: 0, total: 0, file: line, phase: 'npm' });
+    };
+
+    let buf = '';
+    proc.stdout.on('data', (chunk) => {
+      buf += chunk.toString();
+      const lines = buf.split('\n');
+      buf = lines.pop();
+      lines.forEach(handleLine);
+    });
+    proc.stderr.on('data', (chunk) => {
+      chunk.toString().split('\n').forEach(l => l.trim() && log(`[npm] ${l}`, 'info'));
+    });
+
+    proc.on('close', (code) => {
+      if (code === 0) {
+        onProgress({ percent: 100, copied: 0, total: 0, file: 'npm install complete', phase: 'npm' });
+        resolve();
+      } else {
+        reject(new Error(`npm install exited with code ${code}`));
+      }
+    });
+
+    proc.on('error', reject);
+  });
+}
+
+/**
+ * Copies MCP source files then runs npm install.
+ * Progress: 0–80% = file copy, 80–100% = npm install.
  *
- * @param {Function} onProgress  - ({ percent: number, copied: number, total: number, file: string }) => void
+ * @param {Function} onProgress  - ({ percent, copied, total, file, phase }) => void
  * @param {Function} log         - (message, level) => void
  * @returns {Promise<string|null>} absolute path to mcp/src/index.js, or null on failure
  */
@@ -72,16 +136,24 @@ async function extractAndInstallMcp(onProgress, log) {
     const destDir = getMcpInstallDir();
     const stampFile = path.join(destDir, '.mcp_version');
     const indexFile = path.join(destDir, 'src', 'index.js');
+    const nodeModulesDir = path.join(destDir, 'node_modules');
 
-    // Fast path: synchronous stamp check
+    // Fast path: already installed at current version with node_modules present
     try {
       const stamp = fs.readFileSync(stampFile, 'utf8').trim();
-      if (stamp === MCP_VERSION && fs.existsSync(indexFile)) {
-        log(`MCP already up to date (v${MCP_VERSION}) — skipping extract.`, 'info');
-        onProgress({ percent: 100, copied: 1, total: 1, file: 'Already installed' });
+      if (stamp === MCP_VERSION && fs.existsSync(indexFile) && fs.existsSync(nodeModulesDir)) {
+        log(`MCP already up to date (v${MCP_VERSION}) — skipping.`, 'info');
+        onProgress({ percent: 100, copied: 1, total: 1, file: 'Already installed', phase: 'done' });
         return indexFile;
       }
     } catch (_) { /* fall through */ }
+
+    // Check npm before doing anything
+    if (!npmAvailable()) {
+      const msg = 'npm not found in PATH. Please install Node.js from https://nodejs.org and retry.';
+      log(msg, 'warn');
+      throw new Error(msg);
+    }
 
     // Check if bundled source exists
     if (!(await fs.pathExists(srcDir))) {
@@ -92,8 +164,8 @@ async function extractAndInstallMcp(onProgress, log) {
     log(`Installing MCP server (v${MCP_VERSION}) to ${destDir} ...`, 'info');
     await fs.ensureDir(destDir);
 
-    // Collect all files for accurate progress
-    onProgress({ percent: 0, copied: 0, total: 0, file: 'Scanning files...' });
+    // ── Phase 1: Copy source files (0 → 80%) ─────────────────────────────
+    onProgress({ percent: 0, copied: 0, total: 0, file: 'Scanning files...', phase: 'copy' });
     const allFiles = await collectFiles(srcDir);
     const total = allFiles.length;
     let copied = 0;
@@ -104,12 +176,15 @@ async function extractAndInstallMcp(onProgress, log) {
       await fs.ensureDir(path.dirname(destFile));
       await fs.copyFile(srcFile, destFile);
       copied++;
-      const percent = Math.round((copied / total) * 100);
-      onProgress({ percent, copied, total, file: rel });
+      const percent = Math.round((copied / total) * 80); // max 80%
+      onProgress({ percent, copied, total, file: rel, phase: 'copy' });
     }
 
+    // ── Phase 2: npm install (80 → 100%) ─────────────────────────────────
+    await runNpmInstall(destDir, 80, onProgress, log);
+
     await fs.writeFile(stampFile, MCP_VERSION, 'utf8');
-    log(`MCP server installed at ${destDir}`, 'info');
+    log(`MCP server ready at ${destDir}`, 'info');
     return indexFile;
   } catch (err) {
     log(`MCP install error: ${err.message}`, 'warn');
