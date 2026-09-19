@@ -36,24 +36,22 @@ async function extractAndInstallMcp(log) {
     const stampFile = path.join(destDir, '.mcp_version');
     const indexFile = path.join(destDir, 'src', 'index.js');
 
+    // ── Fast path: synchronous stamp check (no async overhead on repeat launches)
+    try {
+      const stamp = fs.readFileSync(stampFile, 'utf8').trim();
+      if (stamp === MCP_VERSION && fs.existsSync(indexFile)) {
+        log(`MCP already up to date (v${MCP_VERSION}) — skipping extract.`, 'info');
+        return indexFile;
+      }
+    } catch (_) { /* stamp missing or unreadable — fall through to install */ }
+
     // Check if bundled MCP source exists
     if (!(await fs.pathExists(srcDir))) {
       log(`MCP source not found at ${srcDir} — skipping MCP setup.`, 'info');
       return null;
     }
 
-    // Check version stamp to avoid redundant re-extracts
-    let installedVersion = null;
-    if (await fs.pathExists(stampFile)) {
-      installedVersion = (await fs.readFile(stampFile, 'utf8')).trim();
-    }
-
-    if (installedVersion === MCP_VERSION && (await fs.pathExists(indexFile))) {
-      log(`MCP already up to date (v${MCP_VERSION}) at ${destDir}`, 'info');
-      return indexFile;
-    }
-
-    // Copy bundled MCP → install dir
+    // Copy bundled MCP → install dir (only runs on first launch or version bump)
     log(`Installing MCP server (v${MCP_VERSION}) to ${destDir} ...`, 'info');
     await fs.ensureDir(destDir);
     await fs.copy(srcDir, destDir, { overwrite: true });

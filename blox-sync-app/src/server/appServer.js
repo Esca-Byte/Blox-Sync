@@ -313,8 +313,10 @@ class BloxSyncAppServer {
   async start() {
     await fs.ensureDir(this.baseProjectsDir);
     await this.ensurePluginInstalled();
-    // Run MCP install in background (non-blocking) so it doesn't delay server startup
-    this.ensureMcpInstalled().catch(() => {});
+    // Defer MCP install by 5s so the app window opens instantly.
+    // On first launch: copies ~16 MB / 3600 files — heavy I/O that would delay startup.
+    // On subsequent launches: synchronous stamp check exits in <1ms so the delay is harmless.
+    setTimeout(() => this.ensureMcpInstalled().catch(() => {}), 5000);
 
     // Load persistent config to restore last active project
     const cfg = await this.loadPersistentConfig();
